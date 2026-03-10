@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "456010140920",
+    "project_id": "tanikala-game",
+    "storage_bucket": "tanikala-game.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456010140920:android:0b81179515303d106dff0d",
+        "android_client_info": {
+          "package_name": "com.dazzle.tanikala_at_laya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjoOXLxixKTCYJC9GRzgct1a9Em3AgY08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
