@@ -109,12 +109,12 @@ public class LoginManager : MonoBehaviour
                         if (role == "teacher")
                         {
                             SetStatus("Login successful!", Color.green);
-                            SceneManager.LoadScene("TeacherScene");
+                            SceneManager.LoadScene("LoadingToTeacher");
                         }
                         else if (role == "student")
                         {
                             SetStatus("Login successful!", Color.green);
-                            SceneManager.LoadScene("MainMenu");
+                            SceneManager.LoadScene("LoadingToMainMenu");
                         }
                         else
                         {

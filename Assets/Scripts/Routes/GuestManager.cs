@@ -17,6 +17,6 @@ public class GuestManager : MonoBehaviour
         GlobalUserData.IsGuest = true;
         GlobalUserData.UserId  = "";
         Debug.Log("👤 Logged in as Guest.");
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("LoadingToMainMenu");
     }
 }

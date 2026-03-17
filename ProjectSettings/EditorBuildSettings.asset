@@ -9,9 +9,21 @@ EditorBuildSettings:
     path: Assets/Scenes/Routes/LoginScene.unity
     guid: 728f590b9e3e4f84198c2c5de76d594a
   - enabled: 1
+    path: Assets/Scenes/Routes/LoadingToTeacher.unity
+    guid: e1dfac33c9973c84f92daf48b0201829
+  - enabled: 1
     path: Assets/Scenes/Teacher/TeacherScene.unity
     guid: 9f4d39eb6fbe50f47a8d7bf76fb7186d
   - enabled: 1
+    path: Assets/Scenes/Routes/LoadingToMainMenu.unity
+    guid: 55e05d563f2e9ea4eb7d73b536fd3575
+  - enabled: 1
     path: Assets/Scenes/Student/MainMenu.unity
     guid: 3f38d2e1712592a489fabe5723b8f9e4
+  - enabled: 1
+    path: Assets/Scenes/Routes/LoadingToLevel.unity
+    guid: 8707056d4ae3403409e34923d55f1820
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelScene.unity
+    guid: ff7422c753dbd754dbbf573e8dad5eb4
   m_configObjects: {}

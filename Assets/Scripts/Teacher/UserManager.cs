@@ -16,10 +16,23 @@ using Firebase.Extensions;
 
 public class UserManager : MonoBehaviour
 {
+
+    public Button refreshBtn;
+
     [Header("Student Table")]
     public GameObject studentRowPrefab;
     public Transform studentTableContent;
+    public GameObject studentContainer;
+
+    [Header("Teacher Table")]
+    public GameObject teacherRowPrefab;
+    public Transform teacherTableContent;
+    public GameObject teacherContainer;
+
+    [Header("Filter")]
+    public TMP_Dropdown userFilterDropdown;
     [Header("Success Panel")]
+    public GameObject SuccessEditPanel;
     public GameObject SuccessPanel;
     [Header("Add Student Panel")]
     public GameObject addStudentContainer;
@@ -49,19 +62,38 @@ public class UserManager : MonoBehaviour
     public TextMeshProUGUI teacherLastNameValidation;
     public TextMeshProUGUI teacherFirstNameValidation;
 
+    [Header("Edit User Panel")]
+    public GameObject editUserContainer;
+    public TMP_InputField editFirstNameField;
+    public TMP_InputField editMiddleNameField;
+    public TMP_InputField editLastNameField;
+    public Button editSaveBtn;
+    public Button editCancelBtn;
+    public TextMeshProUGUI editFirstNameValidation;
+    public TextMeshProUGUI editLastNameValidation;
+
+    private string editingDocID;
+
     [Header("Open Panel Buttons")]
     public Button addStudentBtn;
     public Button addTeacherBtn;
 
     [Header("Search Panel")]
-public GameObject SearchPanel;
-public Button openSearchBtn;
-public TMP_InputField searchField;
-public Button searchBtn;
-public Button closeSearchBtn; 
+    public GameObject SearchPanel;
+    public Button openSearchBtn;
+    public TMP_InputField searchField;
+    public Button searchBtn;
+    public Button closeSearchBtn; 
 
-[Header("Overlay")]
-public GameObject darkOverlay;
+    [Header("Archive Panel")]
+    public GameObject archiveValidation;
+    public Button archiveContinueBtn;
+    public Button archiveCancelBtn;
+
+    private string archivingDocID;
+
+    [Header("Overlay")]
+    public GameObject darkOverlay;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private ListenerRegistration studentListener;
@@ -104,6 +136,27 @@ public GameObject darkOverlay;
         if (searchBtn != null)
     searchBtn.onClick.AddListener(SearchStudent);
         ListenToStudents();
+        
+
+        ListenToTeachers();
+
+        if (editSaveBtn != null)
+            editSaveBtn.onClick.AddListener(SaveEditUser);
+
+        if (editCancelBtn != null)
+            editCancelBtn.onClick.AddListener(() =>
+            {
+                editUserContainer.SetActive(false);
+                if (darkOverlay != null) darkOverlay.SetActive(false);
+            });
+
+        if (userFilterDropdown != null)
+            userFilterDropdown.onValueChanged.AddListener(OnFilterChanged);
+
+        if (teacherContainer != null) teacherContainer.SetActive(false);
+        
+        if (refreshBtn != null)
+            refreshBtn.onClick.AddListener(RefreshUsers);
 
         if (closeSearchBtn != null)
     closeSearchBtn.onClick.AddListener(() =>
@@ -118,9 +171,36 @@ searchField.onValueChanged.AddListener(value =>
         ClearSearch();
 });
 
+if (archiveContinueBtn != null)
+            archiveContinueBtn.onClick.AddListener(ArchiveUser);
+
+        if (archiveCancelBtn != null)
+            archiveCancelBtn.onClick.AddListener(() =>
+            {
+                archiveValidation.SetActive(false);
+                if (darkOverlay != null) darkOverlay.SetActive(false);
+            });
 
     }
+    
+    void OnFilterChanged(int index)
+    {
+        // 0 = Students, 1 = Teachers
+        bool showStudents = index == 0;
+        if (studentContainer != null) studentContainer.SetActive(showStudents);
+        if (teacherContainer != null) teacherContainer.SetActive(!showStudents);
+    }
+     
+     void RefreshUsers()
+    {
+        ClearTable(studentTableContent);
+        ClearTable(teacherTableContent);
+        ListenToStudents();
+        ListenToTeachers();
+    }
 
+
+    
     // ─────────────────────────────────────────────
     // REAL-TIME STUDENT LISTENER
     // ─────────────────────────────────────────────
@@ -148,6 +228,68 @@ searchField.onValueChanged.AddListener(value =>
             });
     }
 
+
+
+    void ListenToTeachers()
+    {
+        db.Collection("users")
+            .WhereEqualTo("role", "teacher")
+            .Listen(snapshot =>
+            {
+                ClearTable(teacherTableContent);
+
+                var sorted = snapshot.Documents
+                    .Where(doc => doc.TryGetValue("is_verified", out bool v) && v)
+                    .OrderBy(doc =>
+                    {
+                        var d = doc.ToDictionary();
+                        string ln = d.ContainsKey("last_name") ? d["last_name"].ToString() : "";
+                        string fn = d.ContainsKey("first_name") ? d["first_name"].ToString() : "";
+                        return $"{ln},{fn}";
+                    }).ToList();
+
+                for (int i = 0; i < sorted.Count; i++)
+                    CreateTeacherRow(sorted[i].ToDictionary(), sorted[i].Id, i + 1);
+            });
+    }
+
+    void CreateTeacherRow(Dictionary<string, object> data, string docID, int index)
+    {
+        GameObject row = Instantiate(teacherRowPrefab, teacherTableContent);
+        row.name = docID;
+        Transform panel = row.transform.Find("Panel");
+        if (panel == null) return;
+
+        string firstName  = data.ContainsKey("first_name")  ? data["first_name"].ToString()  : "";
+        string middleName = data.ContainsKey("middle_name") ? data["middle_name"].ToString() : "";
+        string lastName   = data.ContainsKey("last_name")   ? data["last_name"].ToString()   : "";
+        string email      = data.ContainsKey("email")       ? data["email"].ToString()       : "";
+
+        string middleInitial = !string.IsNullOrEmpty(middleName) ? $" {middleName[0]}." : "";
+        string displayName = $"{lastName}, {firstName}{middleInitial}".Trim();
+
+        SetText(panel, "NumberText", index.ToString());
+        SetText(panel, "NameText", displayName);
+        SetText(panel, "EmailText", email);
+
+        Button editBtn = panel.Find("EditBtn")?.GetComponent<Button>();
+        if (editBtn != null)
+        {
+            string capturedID = docID;
+            string capturedFirst = firstName;
+            string capturedMiddle = middleName;
+            string capturedLast = lastName;
+            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast));
+        }
+
+        Button archiveBtn = panel.Find("ArchiveBtn")?.GetComponent<Button>();
+        if (archiveBtn != null)
+        {
+            string capturedID = docID;
+            archiveBtn.onClick.AddListener(() => OpenArchivePanel(capturedID));
+        }
+    }
+
     void CreateStudentRow(Dictionary<string, object> data, string docID, int index)
     {
         GameObject row = Instantiate(studentRowPrefab, studentTableContent);
@@ -166,8 +308,136 @@ searchField.onValueChanged.AddListener(value =>
         SetText(panel, "NumberText", index.ToString());
         SetText(panel, "NameText", displayName);
         SetText(panel, "EmailText", email);
+
+        Button editBtn = panel.Find("EditBtn")?.GetComponent<Button>();
+        if (editBtn != null)
+        {
+            string capturedID = docID;
+            string capturedFirst = firstName;
+            string capturedMiddle = middleName;
+            string capturedLast = lastName;
+            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast));
+        }
+
+        Button archiveBtn = panel.Find("ArchiveBtn")?.GetComponent<Button>();
+        if (archiveBtn != null)
+        {
+            string capturedID = docID;
+            archiveBtn.onClick.AddListener(() => OpenArchivePanel(capturedID));
+        }
     }
 
+    void OpenEditPanel(string docID, string firstName, string middleName, string lastName)
+    {
+        editingDocID = docID;
+        editFirstNameField.text = firstName;
+        editMiddleNameField.text = middleName;
+        editLastNameField.text = lastName;
+
+        if (editFirstNameValidation != null) editFirstNameValidation.text = "";
+        if (editLastNameValidation != null) editLastNameValidation.text = "";
+
+        if (darkOverlay != null) darkOverlay.SetActive(true);
+        editUserContainer.SetActive(true);
+    }
+
+    void SaveEditUser()
+    {
+        string firstName  = editFirstNameField.text.Trim();
+        string middleName = editMiddleNameField.text.Trim();
+        string lastName   = editLastNameField.text.Trim();
+
+        bool valid = true;
+        if (editFirstNameValidation != null) editFirstNameValidation.text = "";
+        if (editLastNameValidation != null)  editLastNameValidation.text  = "";
+
+        if (string.IsNullOrEmpty(firstName))
+        {
+            if (editFirstNameValidation != null) editFirstNameValidation.text = "First name is required.";
+            valid = false;
+        }
+        if (string.IsNullOrEmpty(lastName))
+        {
+            if (editLastNameValidation != null) editLastNameValidation.text = "Last name is required.";
+            valid = false;
+        }
+        if (!valid) return;
+
+        Dictionary<string, object> updates = new Dictionary<string, object>
+        {
+            { "first_name", firstName },
+            { "middle_name", middleName },
+            { "last_name", lastName }
+        };
+
+        db.Collection("users").Document(editingDocID).UpdateAsync(updates)
+            .ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompletedSuccessfully)
+                {
+                    Debug.Log("✅ User updated.");
+                    editUserContainer.SetActive(false);
+                    if (darkOverlay != null) darkOverlay.SetActive(false);
+                    StartCoroutine(ShowSuccessEditPanel());
+                }
+                else
+                {
+                    Debug.LogError("❌ Update failed: " + task.Exception);
+                }
+            });
+    }
+    
+
+    void OpenArchivePanel(string docID)
+    {
+        archivingDocID = docID;
+        if (darkOverlay != null) darkOverlay.SetActive(true);
+        archiveValidation.SetActive(true);
+    }
+
+    void ArchiveUser()
+    {
+        if (string.IsNullOrEmpty(archivingDocID)) return;
+
+        DocumentReference sourceRef = db.Collection("users").Document(archivingDocID);
+
+        sourceRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted || !task.Result.Exists)
+            {
+                Debug.LogError("❌ User not found: " + task.Exception);
+                return;
+            }
+
+            Dictionary<string, object> data = task.Result.ToDictionary();
+            data["archivedAt"] = Timestamp.GetCurrentTimestamp();
+
+            db.Collection("archived_users").Document(archivingDocID).SetAsync(data)
+                .ContinueWithOnMainThread(setTask =>
+                {
+                    if (!setTask.IsCompletedSuccessfully)
+                    {
+                        Debug.LogError("❌ Failed to archive: " + setTask.Exception);
+                        return;
+                    }
+
+                    sourceRef.DeleteAsync().ContinueWithOnMainThread(deleteTask =>
+                    {
+                        if (deleteTask.IsCompletedSuccessfully)
+                        {
+                            Debug.Log("✅ User archived.");
+                            archiveValidation.SetActive(false);
+                            if (darkOverlay != null) darkOverlay.SetActive(false);
+                            StartCoroutine(ShowSuccessEditPanel());
+                        }
+                        else
+                        {
+                            Debug.LogError("❌ Failed to delete from users: " + deleteTask.Exception);
+                        }
+                    });
+                });
+        });
+    }
     // ─────────────────────────────────────────────
     // ADD STUDENT
     // ─────────────────────────────────────────────
@@ -532,7 +802,10 @@ void SearchStudent()
     string query = searchField.text.Trim().ToLower();
     if (string.IsNullOrEmpty(query)) return;
 
-    foreach (Transform row in studentTableContent)
+    bool isStudentView = userFilterDropdown == null || userFilterDropdown.value == 0;
+    Transform activeContent = isStudentView ? studentTableContent : teacherTableContent;
+
+    foreach (Transform row in activeContent)
     {
         Transform panel = row.Find("Panel");
         if (panel == null) continue;
@@ -551,7 +824,9 @@ void SearchStudent()
 void ClearSearch()
 {
     searchField.text = "";
-    foreach (Transform row in studentTableContent)
+    bool isStudentView = userFilterDropdown == null || userFilterDropdown.value == 0;
+    Transform activeContent = isStudentView ? studentTableContent : teacherTableContent;
+    foreach (Transform row in activeContent)
         row.gameObject.SetActive(true);
 }
 
@@ -567,4 +842,12 @@ IEnumerator ShowSuccessPanel()
         if (studentListener != null)
             studentListener.Stop();
     }
+
+    IEnumerator ShowSuccessEditPanel()
+{
+    if (darkOverlay != null) darkOverlay.SetActive(false);
+    SuccessEditPanel.SetActive(true);
+    yield return new WaitForSeconds(3f);
+    SuccessEditPanel.SetActive(false);
+}
 }
