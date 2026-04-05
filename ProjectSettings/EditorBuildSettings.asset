@@ -26,4 +26,34 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Student/LevelScene.unity
     guid: ff7422c753dbd754dbbf573e8dad5eb4
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level1Scene.unity
+    guid: 917223c9ea714024ca6382eb318b8d38
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level2Scene.unity
+    guid: a4b31dd7de6e0d84abe2fc4647dbf110
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level3Scene.unity
+    guid: ed1f8fee0aa666f43bb25dcde86bfd5c
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level4Scene.unity
+    guid: b57eca4e7dec9584e9d7383662ec1722
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level5Scene.unity
+    guid: 4fcc0ed8f2c59894b9973f7f0ba352b5
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level6Scene.unity
+    guid: a6febf5dc2e4a3c4a9ce454ee191cb23
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level7Scene.unity
+    guid: 8849696387f5e2642b9a66a183f5e7c7
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level8Scene.unity
+    guid: f6ffe246b31e9de458653ece628d7332
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level9Scene.unity
+    guid: ff71e707a8cbf934f9b21e15f12bb8cb
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/Level10Scene.unity
+    guid: b16ff533f5f46d6448e06b308a70347d
   m_configObjects: {}

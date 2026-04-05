@@ -113,6 +113,8 @@ public class LoginManager : MonoBehaviour
                         }
                         else if (role == "student")
                         {
+                            GlobalUserData.UserId = user.UserId;
+                            GlobalUserData.IsGuest = false;
                             SetStatus("Login successful!", Color.green);
                             SceneManager.LoadScene("LoadingToMainMenu");
                         }
