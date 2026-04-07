@@ -18,6 +18,12 @@ public class Level1QuestManager : MonoBehaviour
 
         public string lessonTitle;
         [TextArea] public string lessonDescription;
+
+        [Header("Sounds")]
+        public AudioClip dialogueSound;
+        public AudioClip innerMonologueSound;
+        public AudioClip believeSound;
+        public AudioClip questionSound;
     }
 
     [Header("Newspaper Sequence (order: 1,2,3,4,5,Letter,6,7)")]
@@ -52,6 +58,13 @@ public class Level1QuestManager : MonoBehaviour
     [Header("HUDs to hide during quest")]
     public GameObject[] huds;
 
+    [Header("Level Complete")]
+    public LevelCompleteManager levelCompleteManager;
+
+    [Header("Newspaper Sound")]
+    public AudioClip newspaperSound;
+
+    private AudioSource audioSource;
     private int currentIndex = 0;
 
     private enum QuestState { Newspaper, Dialogue, Choices, Response, Lesson }
@@ -59,10 +72,21 @@ public class Level1QuestManager : MonoBehaviour
 
     void Start()
     {
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+
         questPanel.SetActive(false);
         tapAnywhereBtn.onClick.AddListener(OnTap);
         believeBtn.onClick.AddListener(() => OnChoice(true));
         questionBtn.onClick.AddListener(() => OnChoice(false));
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        if (clip == null || audioSource == null) return;
+        audioSource.Stop();
+        audioSource.clip = clip;
+        audioSource.Play();
     }
 
     public void StartQuest()
@@ -82,13 +106,14 @@ public class Level1QuestManager : MonoBehaviour
     {
         state = QuestState.Newspaper;
 
-
         dialoguePanel.SetActive(false);
         innerMonologuePanel.SetActive(false);
         choicesPanel.SetActive(false);
         responsePanel.SetActive(false);
         lessonPanel.SetActive(false);
         tapAnywhereBtn.gameObject.SetActive(true);
+
+        PlaySound(newspaperSound);
     }
 
     void OnTap()
@@ -119,10 +144,14 @@ public class Level1QuestManager : MonoBehaviour
         var entry = newspapers[currentIndex];
 
         dialogueText.text = entry.dialogueText;
-        dialoguePanel.SetActive(!string.IsNullOrEmpty(entry.dialogueText));
+        bool showDialogue = !string.IsNullOrEmpty(entry.dialogueText);
+        dialoguePanel.SetActive(showDialogue);
+        if (showDialogue) PlaySound(entry.dialogueSound);
 
         innerMonologueText.text = entry.innerMonologueText;
-        innerMonologuePanel.SetActive(!string.IsNullOrEmpty(entry.innerMonologueText));
+        bool showInner = !string.IsNullOrEmpty(entry.innerMonologueText);
+        innerMonologuePanel.SetActive(showInner);
+        if (showInner && !showDialogue) PlaySound(entry.innerMonologueSound);
     }
 
     void ShowChoices()
@@ -143,6 +172,8 @@ public class Level1QuestManager : MonoBehaviour
         string text = believed ? entry.believeText : entry.questionText;
         responseText.text = text;
         responsePanel.SetActive(!string.IsNullOrEmpty(text));
+
+        PlaySound(believed ? entry.believeSound : entry.questionSound);
 
         tapAnywhereBtn.gameObject.SetActive(true);
     }
@@ -188,6 +219,9 @@ public class Level1QuestManager : MonoBehaviour
     void EndQuest()
     {
         questPanel.SetActive(false);
-        foreach (GameObject hud in huds) if (hud != null) hud.SetActive(true);
+        foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+
+        if (levelCompleteManager != null)
+            levelCompleteManager.OnLevelComplete();
     }
 }

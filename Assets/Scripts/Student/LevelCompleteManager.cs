@@ -17,8 +17,8 @@ public class LevelCompleteManager : MonoBehaviour
         completionPanel.SetActive(false);
 
         nextLevelBtn.onClick.AddListener(GoToNextLevel);
-        levelSelectBtn.onClick.AddListener(GoToLevelSelect);
-        mainMenuBtn.onClick.AddListener(GoToMainMenu);
+        if (levelSelectBtn != null) levelSelectBtn.onClick.AddListener(GoToLevelSelect);
+        if (mainMenuBtn != null) mainMenuBtn.onClick.AddListener(GoToMainMenu);
     }
 
     public void OnLevelComplete()
@@ -34,9 +34,7 @@ public class LevelCompleteManager : MonoBehaviour
 
     void GoToNextLevel()
     {
-        int nextLevel = GlobalUserData.CurrentLevel + 1;
-        GlobalUserData.CurrentLevel = nextLevel;
-        SceneManager.LoadScene("Level" + nextLevel + "Scene");
+        SceneManager.LoadScene("LevelScene");
     }
 
     void GoToLevelSelect()

@@ -11,6 +11,9 @@ public class InteractableObject : MonoBehaviour
     [Header("Optional: triggers a quest when interacted")]
     public Level1QuestManager questManager;
 
+    [Header("Optional: sound when interacted")]
+    public InteractSound interactSound;
+
     private bool playerNearby = false;
 
     void Start()
@@ -44,6 +47,9 @@ public class InteractableObject : MonoBehaviour
         foreach (GameObject panel in panels)
             if (panel != null) panel.SetActive(false);
 
+        if (interactSound != null)
+            interactSound.Stop();
+
         InteractionManager.Instance.ClearNearbyInteractable(this);
     }
 
@@ -59,6 +65,9 @@ public class InteractableObject : MonoBehaviour
 
         if (questManager != null)
             questManager.StartQuest();
+
+        if (interactSound != null)
+            interactSound.Play();
     }
 
     public void ClosePanel()
@@ -69,5 +78,8 @@ public class InteractableObject : MonoBehaviour
         // Re-show question mark if player is still nearby
         if (playerNearby && questionMark != null)
             questionMark.SetActive(true);
+
+        if (interactSound != null)
+            interactSound.Stop();
     }
 }

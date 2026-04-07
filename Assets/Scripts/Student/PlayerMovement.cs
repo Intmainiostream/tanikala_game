@@ -11,6 +11,14 @@ public class PlayerMovement : MonoBehaviour
     public float leftLimit = -500f;
     public float rightLimit = 500f;
 
+    [Header("Footsteps")]
+    public AudioClip footstepClip;
+    [Range(0f, 1f)] public float footstepVolume = 0.5f;
+    public float walkPitch = 1f;
+    public float sprintPitch = 1.6f;
+
+    private AudioSource footstepAudio;
+
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private RectTransform rectTransform;
@@ -27,6 +35,12 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         rectTransform = GetComponent<RectTransform>();
+
+        footstepAudio = gameObject.AddComponent<AudioSource>();
+        footstepAudio.clip = footstepClip;
+        footstepAudio.loop = true;
+        footstepAudio.playOnAwake = false;
+        footstepAudio.volume = footstepVolume;
     }
 
     void Update()
@@ -47,6 +61,20 @@ public class PlayerMovement : MonoBehaviour
         }
 
         spriteRenderer.flipX = facingRight;
+        UpdateFootsteps();
+    }
+
+    void UpdateFootsteps()
+    {
+        if (footstepAudio == null) return;
+
+        bool isMoving = movingLeft || movingRight;
+        footstepAudio.pitch = isSprinting ? sprintPitch : walkPitch;
+
+        if (isMoving && !footstepAudio.isPlaying)
+            footstepAudio.Play();
+        else if (!isMoving && footstepAudio.isPlaying)
+            footstepAudio.Stop();
     }
 
     public void OnLeftDown()

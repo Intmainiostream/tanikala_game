@@ -185,19 +185,25 @@ public class LevelSelectionManager : MonoBehaviour
         }
         else
         {
+            if (string.IsNullOrEmpty(GlobalUserData.UserId))
+            {
+                Debug.LogWarning("UserId is empty — skipping Firestore save.");
+                return;
+            }
+
             FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
+
+            Dictionary<string, object> updates = new Dictionary<string, object>();
+            updates["level_progress." + levelNumber] = "finished";
+            if (nextLevel <= 10)
+                updates["level_progress." + nextLevel] = "unlocked";
+
             db.Collection("users").Document(GlobalUserData.UserId)
-                .GetSnapshotAsync().ContinueWithOnMainThread(task =>
+                .UpdateAsync(updates)
+                .ContinueWithOnMainThread(task =>
                 {
-                    if (task.IsFaulted || !task.Result.Exists) return;
-
-                    Dictionary<string, object> updates = new Dictionary<string, object>();
-                    updates["level_progress." + levelNumber] = "finished";
-                    if (nextLevel <= 10)
-                        updates["level_progress." + nextLevel] = "unlocked";
-
-                    db.Collection("users").Document(GlobalUserData.UserId)
-                        .UpdateAsync(updates);
+                    if (task.IsFaulted)
+                        Debug.LogError("Failed to save level progress: " + task.Exception);
                 });
         }
     }
