@@ -172,7 +172,7 @@ public class LevelSelectionManager : MonoBehaviour
     // PUBLIC: Call this from Level1Scene when a level is completed
     // ─────────────────────────────────────────────
 
-    public static void MarkLevelFinished(int levelNumber)
+    public static void MarkLevelFinished(int levelNumber, System.Action onComplete = null)
     {
         int nextLevel = levelNumber + 1;
 
@@ -182,12 +182,14 @@ public class LevelSelectionManager : MonoBehaviour
             if (nextLevel <= 10)
                 PlayerPrefs.SetString("level_" + nextLevel, "unlocked");
             PlayerPrefs.Save();
+            onComplete?.Invoke();
         }
         else
         {
             if (string.IsNullOrEmpty(GlobalUserData.UserId))
             {
                 Debug.LogWarning("UserId is empty — skipping Firestore save.");
+                onComplete?.Invoke();
                 return;
             }
 
@@ -204,6 +206,7 @@ public class LevelSelectionManager : MonoBehaviour
                 {
                     if (task.IsFaulted)
                         Debug.LogError("Failed to save level progress: " + task.Exception);
+                    onComplete?.Invoke();
                 });
         }
     }

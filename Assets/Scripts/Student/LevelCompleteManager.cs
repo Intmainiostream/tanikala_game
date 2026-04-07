@@ -23,9 +23,6 @@ public class LevelCompleteManager : MonoBehaviour
 
     public void OnLevelComplete()
     {
-        LevelSelectionManager.MarkLevelFinished(GlobalUserData.CurrentLevel);
-
-        // Hide next level button if on last level
         if (GlobalUserData.CurrentLevel >= 10)
             nextLevelBtn.gameObject.SetActive(false);
 
@@ -34,7 +31,11 @@ public class LevelCompleteManager : MonoBehaviour
 
     void GoToNextLevel()
     {
-        SceneManager.LoadScene("LevelScene");
+        nextLevelBtn.interactable = false;
+        LevelSelectionManager.MarkLevelFinished(GlobalUserData.CurrentLevel, () =>
+        {
+            SceneManager.LoadScene("LevelScene");
+        });
     }
 
     void GoToLevelSelect()
