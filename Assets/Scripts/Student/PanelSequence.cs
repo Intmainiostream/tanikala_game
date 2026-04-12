@@ -32,6 +32,8 @@ public class PanelSequence : MonoBehaviour
             audioSource.Stop();
     }
 
+    public System.Action onComplete;
+
     public void OnInteractPressed()
     {
         currentIndex++;
@@ -39,6 +41,8 @@ public class PanelSequence : MonoBehaviour
         if (currentIndex >= slides.Length)
         {
             gameObject.SetActive(false);
+            onComplete?.Invoke();
+            onComplete = null;
             return;
         }
 
