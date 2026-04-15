@@ -19,6 +19,9 @@ public class LevelSelectionManager : MonoBehaviour
     [Header("Levels (assign Lvl1 to Lvl10 in order)")]
     public LevelEntry[] levels; // size 10, index 0 = Level 1
 
+    [Header("Loading Panel (covers levels while Firestore loads)")]
+    public GameObject loadingPanel;
+
     private const int TOTAL_LEVELS = 10;
     private FirebaseFirestore db;
 
@@ -26,11 +29,13 @@ public class LevelSelectionManager : MonoBehaviour
     {
         if (GlobalUserData.IsGuest)
         {
+            if (loadingPanel != null) loadingPanel.SetActive(false);
             InitGuestProgressIfNeeded();
             ApplyProgress(LoadGuestProgress());
         }
         else
         {
+            if (loadingPanel != null) loadingPanel.SetActive(true);
             db = FirebaseFirestore.DefaultInstance;
             LoadStudentProgress();
         }
@@ -131,6 +136,7 @@ public class LevelSelectionManager : MonoBehaviour
 
     void ApplyProgress(Dictionary<string, string> progress)
     {
+        if (loadingPanel != null) loadingPanel.SetActive(false);
         for (int i = 0; i < levels.Length; i++)
         {
             int levelNumber = i + 1;

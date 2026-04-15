@@ -102,6 +102,10 @@ public class InteractableObject : MonoBehaviour
         if (flyer != null && flyer.questManager != null)
             flyer.questManager.OnFlyerInteracted(flyer.flyerIndex);
 
+        // Sequential audio (e.g. gunshot → crowd scream)
+        SequentialAudioPlayer seqAudio = GetComponent<SequentialAudioPlayer>();
+        if (seqAudio != null) seqAudio.Play();
+
         if (interactSound != null)
             interactSound.Play();
     }

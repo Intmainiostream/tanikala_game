@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Playables;
 using TMPro;
 
 public class Level4QuestManager : MonoBehaviour
@@ -33,8 +34,9 @@ public class Level4QuestManager : MonoBehaviour
     public GameObject bench1Object;
     public GameObject bench2Object;
 
-    [Header("End Panel")]
-    public PanelSequence endPanel;
+    [Header("Cutscene")]
+    public PlayableDirector cutscene;
+    public GameObject cutscenePanel; // parent of all the activation panels
 
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
@@ -125,20 +127,31 @@ public class Level4QuestManager : MonoBehaviour
     {
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        if (endPanel != null)
+        // Disable all interactables so triggers stop firing
+        foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
         {
-            if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(true);
-            endPanel.gameObject.SetActive(true);
-            endPanel.onComplete = () =>
-            {
-                if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(false);
-                if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
-            };
+            if (obj.questionMark != null) obj.questionMark.SetActive(false);
+            obj.enabled = false;
+            Collider2D col = obj.GetComponent<Collider2D>();
+            if (col != null) col.enabled = false;
+        }
+
+        if (cutscene != null)
+        {
+            if (cutscenePanel != null) cutscenePanel.SetActive(true);
+            cutscene.stopped += OnCutsceneFinished;
+            cutscene.Play();
         }
         else
         {
             if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
         }
+    }
+
+    void OnCutsceneFinished(PlayableDirector director)
+    {
+        cutscene.stopped -= OnCutsceneFinished;
+        if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
     }
 
     // Keep StartQuest for InteractableObject compatibility (unused for benches)
