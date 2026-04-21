@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
 
     private float lastLeftTapTime = -1f;
     private float lastRightTapTime = -1f;
+    private bool frozen = false;
 
     void Start()
     {
@@ -43,8 +44,24 @@ public class PlayerMovement : MonoBehaviour
         footstepAudio.volume = footstepVolume;
     }
 
+    public void Freeze()
+    {
+        frozen = true;
+        movingLeft = false;
+        movingRight = false;
+        isSprinting = false;
+        if (animator != null) animator.SetBool("isWalking", false);
+        if (footstepAudio != null) footstepAudio.Stop();
+    }
+
+    public void Unfreeze()
+    {
+        frozen = false;
+    }
+
     void Update()
     {
+        if (frozen) return;
         float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
 
         if (movingLeft)

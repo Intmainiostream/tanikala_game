@@ -11,27 +11,29 @@ public class LevelCompleteManager : MonoBehaviour
     public Button nextLevelBtn;
     public Button levelSelectBtn;
     public Button mainMenuBtn;
+    public Button exitBtn;
 
     void Start()
     {
-        completionPanel.SetActive(false);
+        if (completionPanel != null) completionPanel.SetActive(false);
 
-        nextLevelBtn.onClick.AddListener(GoToNextLevel);
+        if (nextLevelBtn != null) nextLevelBtn.onClick.AddListener(GoToNextLevel);
         if (levelSelectBtn != null) levelSelectBtn.onClick.AddListener(GoToLevelSelect);
         if (mainMenuBtn != null) mainMenuBtn.onClick.AddListener(GoToMainMenu);
+        if (exitBtn != null) exitBtn.onClick.AddListener(() => Application.Quit());
     }
 
     public void OnLevelComplete()
     {
-        if (GlobalUserData.CurrentLevel >= 10)
+        if (nextLevelBtn != null && GlobalUserData.CurrentLevel >= 10)
             nextLevelBtn.gameObject.SetActive(false);
 
-        completionPanel.SetActive(true);
+        if (completionPanel != null) completionPanel.SetActive(true);
     }
 
     void GoToNextLevel()
     {
-        nextLevelBtn.interactable = false;
+        if (nextLevelBtn != null) nextLevelBtn.interactable = false;
         LevelSelectionManager.MarkLevelFinished(GlobalUserData.CurrentLevel, () =>
         {
             SceneManager.LoadScene("LevelScene");

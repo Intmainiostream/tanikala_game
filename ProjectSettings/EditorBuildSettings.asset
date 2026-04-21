@@ -33,6 +33,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Student/LevelS/Level2Scene.unity
     guid: a4b31dd7de6e0d84abe2fc4647dbf110
   - enabled: 1
+    path: Assets/Scenes/Student/LevelS/PreLevel3Scene.unity
+    guid: 9afb4b338830d214e8af946b13d95a3f
+  - enabled: 1
+    path: Assets/Scenes/Routes/LoadLevel3Scene.unity
+    guid: 1c120e67d2af9224f9430c6aa8aa48a5
+  - enabled: 1
     path: Assets/Scenes/Student/LevelS/Level3Scene.unity
     guid: ed1f8fee0aa666f43bb25dcde86bfd5c
   - enabled: 1
@@ -53,6 +59,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Student/LevelS/Level9Scene.unity
     guid: ff71e707a8cbf934f9b21e15f12bb8cb
+  - enabled: 1
+    path: Assets/Scenes/Student/LevelS/PreLevel10Scene.unity
+    guid: 93a1a9d6fdd0ad24593b84fb75534a3f
+  - enabled: 1
+    path: Assets/Scenes/Routes/LoadLevel10Scene.unity
+    guid: b413fca745f3aff4bbd40fa3faeb5c5c
   - enabled: 1
     path: Assets/Scenes/Student/LevelS/Level10Scene.unity
     guid: b16ff533f5f46d6448e06b308a70347d

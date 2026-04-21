@@ -58,13 +58,10 @@ public class Level4QuestManager : MonoBehaviour
         // Hide benches until Celia is talked to
         if (bench1Object != null) bench1Object.SetActive(false);
         if (bench2Object != null) bench2Object.SetActive(false);
-
-        // Hook into Celia's panel sequence completion
-        if (celiaPanelSequence != null)
-            celiaPanelSequence.onComplete = OnCeliaTalked;
     }
 
-    void OnCeliaTalked()
+    // Called by InteractableObject after Celia's PanelSequence ends
+    public void StartQuest()
     {
         if (bench1Object != null) bench1Object.SetActive(true);
         if (bench2Object != null) bench2Object.SetActive(true);
@@ -154,6 +151,4 @@ public class Level4QuestManager : MonoBehaviour
         if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
     }
 
-    // Keep StartQuest for InteractableObject compatibility (unused for benches)
-    public void StartQuest() { }
 }

@@ -23,6 +23,8 @@ public class InteractableObject : MonoBehaviour
     [Header("Optional: sound when interacted")]
     public InteractSound interactSound;
 
+    public static bool AnyInteractionActive = false;
+
     private bool playerNearby = false;
 
     void Start()
@@ -68,6 +70,8 @@ public class InteractableObject : MonoBehaviour
         foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
             if (obj.questionMark != null) obj.questionMark.SetActive(false);
 
+        AnyInteractionActive = true;
+
         // Show all assigned panels
         foreach (GameObject panel in panels)
             if (panel != null) panel.SetActive(true);
@@ -84,23 +88,66 @@ public class InteractableObject : MonoBehaviour
         else if (questManager9  != null) startQuest = questManager9.StartQuest;
         else if (questManager10 != null) startQuest = questManager10.StartQuest;
 
+        // Find a PanelSequence in the assigned panels
+        PanelSequence seq = null;
+        foreach (GameObject panel in panels)
+            if (panel != null) { seq = panel.GetComponentInChildren<PanelSequence>(); if (seq != null) break; }
+
+        Level10Trackable trackable = GetComponent<Level10Trackable>();
+        System.Action notifyTrackable = null;
+        if (trackable != null && trackable.manager != null)
+        {
+            var go = gameObject;
+            var mgr = trackable.manager;
+            notifyTrackable = () => mgr.OnObjectInteracted(go);
+        }
+
+        Level9WaterRecipient water = GetComponent<Level9WaterRecipient>();
+        System.Action notifyWater = null;
+        if (water != null && water.questManager != null)
+        {
+            var idx = water.npcIndex;
+            var wMgr = water.questManager;
+            var self = this;
+            notifyWater = () => wMgr.OnNPCGiven(idx, self);
+        }
+
         if (startQuest != null)
         {
-            // Find a PanelSequence in the assigned panels; if found, wait for it to finish
-            PanelSequence seq = null;
-            foreach (GameObject panel in panels)
-                if (panel != null) { seq = panel.GetComponentInChildren<PanelSequence>(); if (seq != null) break; }
-
             if (seq != null)
-                seq.onComplete = startQuest;
+            {
+                var captured = startQuest;
+                var notify = notifyTrackable;
+                var notifyW = notifyWater;
+                seq.onComplete = () => { AnyInteractionActive = false; notify?.Invoke(); notifyW?.Invoke(); captured(); };
+            }
             else
+            {
+                notifyTrackable?.Invoke();
+                notifyWater?.Invoke();
                 startQuest();
+            }
+        }
+        else if (seq != null)
+        {
+            var notify = notifyTrackable;
+            var notifyW = notifyWater;
+            seq.onComplete = () => { AnyInteractionActive = false; notify?.Invoke(); notifyW?.Invoke(); };
+        }
+        else
+        {
+            notifyTrackable?.Invoke();
+            notifyWater?.Invoke();
         }
 
         // Level 4 flyer benches
         Level4FlyerInteractable flyer = GetComponent<Level4FlyerInteractable>();
         if (flyer != null && flyer.questManager != null)
             flyer.questManager.OnFlyerInteracted(flyer.flyerIndex);
+
+        // Door scene loader
+        DoorSceneLoader door = GetComponent<DoorSceneLoader>();
+        if (door != null) door.Load();
 
         // Sequential audio (e.g. gunshot → crowd scream)
         SequentialAudioPlayer seqAudio = GetComponent<SequentialAudioPlayer>();
@@ -112,6 +159,8 @@ public class InteractableObject : MonoBehaviour
 
     public void ClosePanel()
     {
+        AnyInteractionActive = false;
+
         foreach (GameObject panel in panels)
             if (panel != null) panel.SetActive(false);
 

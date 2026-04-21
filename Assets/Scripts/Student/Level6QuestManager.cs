@@ -20,23 +20,28 @@ public class Level6QuestManager : MonoBehaviour
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
 
+    private bool journalistDone = false;
+
     void Start()
     {
-        // Hide evidence until journalist is talked to
         if (evidenceObject != null) evidenceObject.SetActive(false);
-
-        // Hook into journalist dialogue completion
-        if (journalistPanelSequence != null)
-            journalistPanelSequence.onComplete = OnJournalistTalked;
     }
 
-    void OnJournalistTalked()
-    {
-        if (evidenceObject != null) evidenceObject.SetActive(true);
-    }
-
-    // Called by InteractableObject on the evidence object
+    // Called by Journalist's InteractableObject (assign questManager6 on Journalist NPC)
     public void StartQuest()
+    {
+        if (!journalistDone)
+        {
+            journalistDone = true;
+            if (evidenceObject != null) evidenceObject.SetActive(true);
+            return;
+        }
+
+        // Called by evidence InteractableObject after its PanelSequence ends
+        OnEvidenceInteracted();
+    }
+
+    void OnEvidenceInteracted()
     {
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
