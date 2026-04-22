@@ -171,7 +171,10 @@ public class LevelSelectionManager : MonoBehaviour
     void OnLevelClicked(int levelNumber)
     {
         GlobalUserData.CurrentLevel = levelNumber;
-        SceneManager.LoadScene("Level" + levelNumber + "Scene");
+
+        if (levelNumber == 3)       SceneManager.LoadScene("PreLevel3Scene");
+        else if (levelNumber == 10) SceneManager.LoadScene("PreLevel10Scene");
+        else                        SceneManager.LoadScene("Level" + levelNumber + "Scene");
     }
 
     // ─────────────────────────────────────────────

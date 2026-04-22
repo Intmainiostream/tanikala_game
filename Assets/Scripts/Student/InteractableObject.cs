@@ -97,9 +97,9 @@ public class InteractableObject : MonoBehaviour
         System.Action notifyTrackable = null;
         if (trackable != null && trackable.manager != null)
         {
-            var go = gameObject;
+            var idx = trackable.objectIndex;
             var mgr = trackable.manager;
-            notifyTrackable = () => mgr.OnObjectInteracted(go);
+            notifyTrackable = () => mgr.OnObjectInteracted(idx);
         }
 
         Level9WaterRecipient water = GetComponent<Level9WaterRecipient>();

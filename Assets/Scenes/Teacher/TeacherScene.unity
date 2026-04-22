@@ -5136,6 +5136,7 @@ MonoBehaviour:
   - {fileID: 1446029697}
   - {fileID: 390095253}
   confirmBtn: {fileID: 1316577020}
+  leaderboardManager: {fileID: 787103840}
   processingPanel: {fileID: 0}
   successPanel: {fileID: 1643007793}
 --- !u!1 &319337253
@@ -13475,7 +13476,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f29b55c4413b19a43aa2756d06ab3d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowPrefab: {fileID: 1127138110310475932}
+  rowPrefab: {fileID: 1127138111034817545, guid: 4780b83ef29403d49a1c839c0ec7c220, type: 3}
   tableContent: {fileID: 950381209}
   syText: {fileID: 0}
   loadingPanel: {fileID: 0}
@@ -19687,6 +19688,18 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 1410468215}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 672879013}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
@@ -35198,11 +35211,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4780b83ef29403d49a1c839c0ec7c220, type: 3}
---- !u!1 &1127138110310475932 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1127138111034817545, guid: 4780b83ef29403d49a1c839c0ec7c220, type: 3}
-  m_PrefabInstance: {fileID: 1127138110310475931}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2091674868869543973
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -25,8 +25,11 @@ public class LevelCompleteManager : MonoBehaviour
 
     public void OnLevelComplete()
     {
-        if (nextLevelBtn != null && GlobalUserData.CurrentLevel >= 10)
+        if (nextLevelBtn != null && GlobalUserData.CurrentLevel >= 11)
             nextLevelBtn.gameObject.SetActive(false);
+
+        // Always save progress immediately regardless of which button they press
+        LevelSelectionManager.MarkLevelFinished(GlobalUserData.CurrentLevel);
 
         if (completionPanel != null) completionPanel.SetActive(true);
     }
@@ -34,10 +37,7 @@ public class LevelCompleteManager : MonoBehaviour
     void GoToNextLevel()
     {
         if (nextLevelBtn != null) nextLevelBtn.interactable = false;
-        LevelSelectionManager.MarkLevelFinished(GlobalUserData.CurrentLevel, () =>
-        {
-            SceneManager.LoadScene("LevelScene");
-        });
+        SceneManager.LoadScene("LevelScene");
     }
 
     void GoToLevelSelect()

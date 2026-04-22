@@ -243,15 +243,28 @@ public class Level10QuestManager : MonoBehaviour
         }
 
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
-        var updates = new Dictionary<string, object> { { "quiz_score", score } };
 
+        // Only save if no score exists yet — first try is permanent
         db.Collection("users").Document(GlobalUserData.UserId)
-            .UpdateAsync(updates)
+            .GetSnapshotAsync()
             .ContinueWithOnMainThread(task =>
             {
-                if (task.IsFaulted)
-                    Debug.LogError("Failed to save quiz score: " + task.Exception);
-                onDone?.Invoke();
+                if (!task.IsFaulted && task.Result.Exists && task.Result.ToDictionary().ContainsKey("quiz_score"))
+                {
+                    // Score already exists, don't overwrite
+                    onDone?.Invoke();
+                    return;
+                }
+
+                var updates = new Dictionary<string, object> { { "quiz_score", score } };
+                db.Collection("users").Document(GlobalUserData.UserId)
+                    .UpdateAsync(updates)
+                    .ContinueWithOnMainThread(updateTask =>
+                    {
+                        if (updateTask.IsFaulted)
+                            Debug.LogError("Failed to save quiz score: " + updateTask.Exception);
+                        onDone?.Invoke();
+                    });
             });
     }
 

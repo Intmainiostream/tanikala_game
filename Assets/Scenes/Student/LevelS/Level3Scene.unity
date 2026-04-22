@@ -5407,7 +5407,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -54.07, y: -2.97}
+  m_AnchoredPosition: {x: -68.81, y: -2.97}
   m_SizeDelta: {x: 67.5882, y: 15.3997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &1060017986
@@ -8126,7 +8126,7 @@ GameObject:
   - component: {fileID: 1431386129}
   m_Layer: 0
   m_Name: Guard
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8268,7 +8268,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -237.11, y: -543.92}
+  m_AnchoredPosition: {x: -237.11, y: -542.44}
   m_SizeDelta: {x: 2.56, y: 3.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1431386129
@@ -8287,7 +8287,7 @@ MonoBehaviour:
   rightIdleSprite: {fileID: 1372802794, guid: 2ccbbabd1e2262e42aba9603a9ae8be5, type: 3}
   lookLeftDuration: 3
   lookRightDuration: 6
-  detectionRadius: 3
+  detectionRadius: 4
   detectionDelay: 1
   paused: 0
 --- !u!1 &1458277200
@@ -8326,7 +8326,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -49.7, y: -1.73}
+  m_AnchoredPosition: {x: -60.65, y: -1.73}
   m_SizeDelta: {x: 67.5882, y: 15.3997}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &1458277202
@@ -10839,7 +10839,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.023034573, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -10850,7 +10850,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 9.424242, y: 4.787879}
+  m_Size: {x: 7.1669455, y: 4.787879}
   m_EdgeRadius: 0
 --- !u!1 &1867463620
 GameObject:
@@ -11443,8 +11443,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -83, y: -76}
-  m_SizeDelta: {x: 131.7722, y: 23.246}
+  m_AnchoredPosition: {x: -100.16968, y: -83.1192}
+  m_SizeDelta: {x: 172.1248, y: 25.7788}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1933518079
 GameObject:
@@ -11899,7 +11899,7 @@ GameObject:
   - component: {fileID: 2126451815}
   m_Layer: 0
   m_Name: Guard (1)
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11921,7 +11921,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -209.87, y: -543.92}
+  m_AnchoredPosition: {x: -209.87, y: -542.44}
   m_SizeDelta: {x: 2.56, y: 3.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2126451815
@@ -11940,7 +11940,7 @@ MonoBehaviour:
   rightIdleSprite: {fileID: 1372802794, guid: 2ccbbabd1e2262e42aba9603a9ae8be5, type: 3}
   lookLeftDuration: 3
   lookRightDuration: 6
-  detectionRadius: 3
+  detectionRadius: 4
   detectionDelay: 2
   paused: 0
 --- !u!50 &2126451816

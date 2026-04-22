@@ -1410,6 +1410,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 1004194158}
+  objectIndex: 0
 --- !u!1 &417757534
 GameObject:
   m_ObjectHideFlags: 0
@@ -2955,9 +2956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48574cad2300c35408dc26596963de3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  requiredObjects:
-  - {fileID: 1208051881}
-  - {fileID: 1428739539}
+  requiredCount: 2
   nextArea: {fileID: 2027910918}
 --- !u!1 &1055290604
 GameObject:
@@ -3219,6 +3218,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 1004194158}
+  objectIndex: 0
 --- !u!1 &1214710434
 GameObject:
   m_ObjectHideFlags: 0
@@ -4212,6 +4212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 1004194158}
+  objectIndex: 1
 --- !u!1 &1470434858
 GameObject:
   m_ObjectHideFlags: 0
@@ -5364,11 +5365,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2027910919}
   - component: {fileID: 2027910921}
-  - component: {fileID: 2027910920}
   - component: {fileID: 2027910922}
   - component: {fileID: 2027910923}
   - component: {fileID: 2027910925}
   - component: {fileID: 2027910924}
+  - component: {fileID: 2027910926}
   m_Layer: 0
   m_Name: NextArea
   m_TagString: Untagged
@@ -5391,20 +5392,6 @@ Transform:
   m_Father: {fileID: 1938600806}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2027910920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2027910918}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 78b256b05fd729e46b8ddfc827547ad0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bounceHeight: 0.1
-  bounceSpeed: 2
 --- !u!212 &2027910921
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5469,7 +5456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37dab83b1a269e6468ddf378d5a306c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionMark: {fileID: 2027910918}
+  questionMark: {fileID: 0}
   panels: []
   questManager: {fileID: 0}
   questManager2: {fileID: 0}
@@ -5542,6 +5529,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2.32, y: 20.774181}
   m_EdgeRadius: 0
+--- !u!114 &2027910926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027910918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78b256b05fd729e46b8ddfc827547ad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bounceHeight: 1
+  bounceSpeed: 0.5
 --- !u!1 &2110079535
 GameObject:
   m_ObjectHideFlags: 0
@@ -5612,6 +5613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   manager: {fileID: 1004194158}
+  objectIndex: 0
 --- !u!1 &2143644542
 GameObject:
   m_ObjectHideFlags: 0

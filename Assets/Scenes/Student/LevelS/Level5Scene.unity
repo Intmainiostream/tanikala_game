@@ -1848,7 +1848,7 @@ Transform:
   m_LocalScale: {x: 0.32602054, y: 0.27792847, z: 1.5215}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 577150815}
+  m_Father: {fileID: 577150822}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -5}
 --- !u!212 &441668748
@@ -2169,7 +2169,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 577150815}
+  - component: {fileID: 577150822}
   - component: {fileID: 577150816}
   - component: {fileID: 577150817}
   - component: {fileID: 577150819}
@@ -2182,22 +2182,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &577150815
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 577150814}
-  m_LocalRotation: {x: -0, y: -0, z: 0.04108842, w: 0.9991555}
-  m_LocalPosition: {x: -215.85, y: -541.37, z: 0}
-  m_LocalScale: {x: 0.5221678, y: 0.5664446, z: 1.0069945}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 441668747}
-  m_Father: {fileID: 1938600806}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 4.71}
 --- !u!212 &577150816
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2325,6 +2309,27 @@ MonoBehaviour:
   questManager9: {fileID: 0}
   questManager10: {fileID: 0}
   interactSound: {fileID: 0}
+--- !u!224 &577150822
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577150814}
+  m_LocalRotation: {x: -0, y: -0, z: 0.04108842, w: 0.9991555}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5221678, y: 0.5664446, z: 1.0069945}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 441668747}
+  m_Father: {fileID: 1938600806}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 4.71}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -265.22, y: -541.31}
+  m_SizeDelta: {x: 1.375, y: 0.9375}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &605655688
 GameObject:
   m_ObjectHideFlags: 0
@@ -8276,7 +8281,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1689604104}
-  - {fileID: 577150815}
+  - {fileID: 577150822}
   - {fileID: 2137255845}
   - {fileID: 1834281416}
   m_Father: {fileID: 0}

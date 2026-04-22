@@ -73,9 +73,10 @@ public class LeaderboardManager : MonoBehaviour
                 foreach (DocumentSnapshot doc in task.Result.Documents)
                 {
                     if (!doc.TryGetValue("is_verified", out bool verified) || !verified) continue;
-                    if (!doc.TryGetValue("quiz_score", out int quizScore)) continue;
 
                     var d = doc.ToDictionary();
+                    if (!d.ContainsKey("quiz_score")) continue;
+                    int quizScore = System.Convert.ToInt32(d["quiz_score"]);
                     string first  = d.ContainsKey("first_name")  ? d["first_name"].ToString()  : "";
                     string middle = d.ContainsKey("middle_name") ? d["middle_name"].ToString() : "";
                     string last   = d.ContainsKey("last_name")   ? d["last_name"].ToString()   : "";
