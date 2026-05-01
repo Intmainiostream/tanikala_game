@@ -1257,7 +1257,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &322060975
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1359,6 +1359,141 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 322060974}
+  m_CullTransparentMesh: 1
+--- !u!1 &327779552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 327779553}
+  - component: {fileID: 327779555}
+  - component: {fileID: 327779554}
+  m_Layer: 5
+  m_Name: TimerText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &327779553
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327779552}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 602101332}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.0014381, y: -25}
+  m_SizeDelta: {x: 415.91, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &327779554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327779552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 30
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: c66dc5c9faefbdc458bc846a0c453539, type: 2}
+  m_sharedMaterial: {fileID: -3290477278361070957, guid: c66dc5c9faefbdc458bc846a0c453539, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 40
+  m_fontSizeBase: 40
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_enableWordWrapping: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 1
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &327779555
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327779552}
   m_CullTransparentMesh: 1
 --- !u!1 &346178637
 GameObject:
@@ -1894,6 +2029,84 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &602101331
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 602101332}
+  - component: {fileID: 602101334}
+  - component: {fileID: 602101333}
+  m_Layer: 5
+  m_Name: TimerPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &602101332
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602101331}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 327779553}
+  - {fileID: 1049004746}
+  m_Father: {fileID: 1004194157}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 415.9102, y: 100}
+  m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &602101333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602101331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.2901961, g: 0.23529413, b: 0.2627451, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &602101334
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602101331}
+  m_CullTransparentMesh: 1
 --- !u!1 &605655688
 GameObject:
   m_ObjectHideFlags: 0
@@ -3211,6 +3424,7 @@ RectTransform:
   - {fileID: 1901499645}
   - {fileID: 1726351621}
   - {fileID: 1246305603}
+  - {fileID: 602101332}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3233,7 +3447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questions:
   - type: 0
-    questionText: 'Q1: What year was Proclamation 1081 signed?'
+    questionText: ' What year was Proclamation 1081 signed?'
     choiceA: A) 1969
     choiceB: 'B) 1970  '
     choiceC: C) 1972
@@ -3245,7 +3459,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: f535d54755fc80949b17029cd013c719, type: 3}
   - type: 0
-    questionText: 'Q2: What did Bagong Lipunan mean?'
+    questionText: ' What did Bagong Lipunan mean?'
     choiceA: 'A) New Government  '
     choiceB: 'B) New Society '
     choiceC: 'C) New Army '
@@ -3257,7 +3471,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 8041b0fea58e0704ea11e22414d06ec5, type: 3}
   - type: 0
-    questionText: 'Q3: What happened to the writ of habeas corpus under Martial Law?'
+    questionText: ' What happened to the writ of habeas corpus under Martial Law?'
     choiceA: 'A) Strengthened '
     choiceB: 'B) Moved to military courts '
     choiceC: C) Suspended
@@ -3269,7 +3483,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 61033e4bbf0b63c4588c95dd81573711, type: 3}
   - type: 0
-    questionText: 'Q4: What was COMELEC?'
+    questionText: ' What was COMELEC?'
     choiceA: A) A media regulatory body
     choiceB: 'B) The Commission on Elections '
     choiceC: 'C) A military intelligence unit   '
@@ -3283,7 +3497,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: fe0d574f4bfce1a4c97615733ffb81bb, type: 3}
   - type: 0
-    questionText: 'Q5: What is crony capitalism?'
+    questionText: ' What is crony capitalism?'
     choiceA: A) Building infrastructure with government funds
     choiceB: 'B) Giving monopolies and contracts to political allies '
     choiceC: C) Nationalising private industries
@@ -3296,7 +3510,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: e7324d4413aedd1448c74fcc158a6554, type: 3}
   - type: 0
-    questionText: 'Q6: What was NAMFREL?'
+    questionText: ' What was NAMFREL?'
     choiceA: 'A) A government media body '
     choiceB: ' B) A military intelligence unit'
     choiceC: 'C) The National Citizens'' Movement for Free Elections '
@@ -3308,7 +3522,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 4427ea5eee69cdb408a4ac7c83b69de9, type: 3}
   - type: 0
-    questionText: 'Q7: Approximately how many people were imprisoned during Martial
+    questionText: ' Approximately how many people were imprisoned during Martial
       Law?'
     choiceA: 'A) 700  '
     choiceB: 'B) 7,000 '
@@ -3321,7 +3535,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: bdea9819c519f914bba728dba4bf3775, type: 3}
   - type: 0
-    questionText: 'Q8: Who was Benigno Aquino Jr.?'
+    questionText: ' Who was Benigno Aquino Jr.?'
     choiceA: 'A) A general who led EDSA '
     choiceB: 'B) An opposition senator later assassinated at Manila airport '
     choiceC: ' C) The first post-Marcos president '
@@ -3333,8 +3547,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 50e8833002b96f442b0e12da8fa46d8b, type: 3}
   - type: 0
-    questionText: 'Q9: What did COMELEC computer operators do during the 1986 Snap
-      Election?'
+    questionText: ' What did COMELEC computer operators do during the 1986 Snap Election?'
     choiceA: A) Announced Marcos's victory
     choiceB: 'B) Refused to operate and walked out, citing falsified tallies   '
     choiceC: C) Certified the NAMFREL count
@@ -3347,7 +3560,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: a493e378bc703df428c01a4008d02263, type: 3}
   - type: 0
-    questionText: 'Q10: Who was the opposition candidate in the 1986 Snap Election?'
+    questionText: ' Who was the opposition candidate in the 1986 Snap Election?'
     choiceA: 'A) Salvador Laurel '
     choiceB: B) Fidel Ramos
     choiceC: 'C) Corazon Aquino '
@@ -3359,8 +3572,8 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 5e2fba3c0a8513341a62da094b3497ea, type: 3}
   - type: 1
-    questionText: 'S1: Benigno Aquino Jr. was shot at Manila International Airport
-      in 1983.'
+    questionText: ' Benigno Aquino Jr. was shot at Manila International Airport in
+      1983.'
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3371,7 +3584,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: b3cc97a92bdd9134ea6ae2c0987443e7, type: 3}
     wrongSound: {fileID: 8300000, guid: 009cb4a2bc7275441be5e486d3bef66e, type: 3}
   - type: 1
-    questionText: 'S2: The EDSA People Power Revolution lasted three weeks.'
+    questionText: The EDSA People Power Revolution lasted three weeks.
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3382,8 +3595,8 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: a0645b25ce7f21e4ab5c93b0f8fd5601, type: 3}
   - type: 1
-    questionText: 'S3: Cardinal Jaime Sin called on civilians to go to EDSA over
-      the radio.'
+    questionText: ' Cardinal Jaime Sin called on civilians to go to EDSA over the
+      radio.'
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3395,7 +3608,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: b3cc97a92bdd9134ea6ae2c0987443e7, type: 3}
     wrongSound: {fileID: 8300000, guid: 954fad0ebc3cf034cbac0cb145e76e19, type: 3}
   - type: 1
-    questionText: 'S4: Marcos was re-elected in a legitimate election in 1986.'
+    questionText: Marcos was re-elected in a legitimate election in 1986.
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3407,7 +3620,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: fa945f3d75b557b46a5ecb52c0d2c521, type: 3}
   - type: 1
-    questionText: 'S5: The U.S. government gave Marcos asylum in Hawaii.'
+    questionText: ' The U.S. government gave Marcos asylum in Hawaii.'
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3419,7 +3632,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: b3cc97a92bdd9134ea6ae2c0987443e7, type: 3}
     wrongSound: {fileID: 8300000, guid: 51ba5232e3ab9684291841a01eb58107, type: 3}
   - type: 1
-    questionText: 'S6: The Agrava Commission found that the government was involved
+    questionText: ' The Agrava Commission found that the government was involved
       in the Aquino assassination.'
     choiceA: 
     choiceB: 
@@ -3432,8 +3645,8 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: b3cc97a92bdd9134ea6ae2c0987443e7, type: 3}
     wrongSound: {fileID: 8300000, guid: 60497e278012a88488a433eefbf3c88e, type: 3}
   - type: 1
-    questionText: 'S7: The EDSA revolution involved armed combat between civilians
-      and the military.'
+    questionText: The EDSA revolution involved armed combat between civilians and
+      the military.
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3445,7 +3658,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 246b8552c872263488c22fa30cb2b690, type: 3}
   - type: 1
-    questionText: 'S8: Ferdinand Marcos died in the Philippines.'
+    questionText: Ferdinand Marcos died in the Philippines.
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3456,7 +3669,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: cea2eb901c409fe4a85fde097d6b3f9c, type: 3}
     wrongSound: {fileID: 8300000, guid: 7fe04b489f287c64c9197611694f1552, type: 3}
   - type: 1
-    questionText: 'S9: Manilans held a noise barrage on the eve of the 1978 election.'
+    questionText: ' Manilans held a noise barrage on the eve of the 1978 election.'
     choiceA: 
     choiceB: 
     choiceC: 
@@ -3468,7 +3681,7 @@ MonoBehaviour:
     correctSound: {fileID: 8300000, guid: b3cc97a92bdd9134ea6ae2c0987443e7, type: 3}
     wrongSound: {fileID: 8300000, guid: 74b9f0306ba7a3f4baf7051340c27231, type: 3}
   - type: 1
-    questionText: 'S10: Ramos and Enrile announced their break with Marcos on February
+    questionText: ' Ramos and Enrile announced their break with Marcos on February
       22, 1986.'
     choiceA: 
     choiceB: 
@@ -3494,6 +3707,9 @@ MonoBehaviour:
   trueFalseBtnPanel: {fileID: 1409144636}
   trueBtn: {fileID: 1735668087}
   falseBtn: {fileID: 1627502336}
+  timerPanel: {fileID: 602101331}
+  timerText: {fileID: 327779554}
+  questionTime: 30
   falsePanel: {fileID: 840340188}
   falsePanelText: {fileID: 1498896188}
   tapAnywhereBtn: {fileID: 322060976}
@@ -3774,6 +3990,141 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1042529793}
+  m_CullTransparentMesh: 1
+--- !u!1 &1049004745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1049004746}
+  - component: {fileID: 1049004748}
+  - component: {fileID: 1049004747}
+  m_Layer: 5
+  m_Name: Title
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1049004746
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049004745}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 602101332}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.0014381, y: 29.3287}
+  m_SizeDelta: {x: 415.91, y: 41.3425}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1049004747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049004745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: TIMER
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: c66dc5c9faefbdc458bc846a0c453539, type: 2}
+  m_sharedMaterial: {fileID: -3290477278361070957, guid: c66dc5c9faefbdc458bc846a0c453539, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 30
+  m_fontSizeBase: 30
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_enableWordWrapping: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 1
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1049004748
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1049004745}
   m_CullTransparentMesh: 1
 --- !u!1 &1113246507
 GameObject:

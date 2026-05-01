@@ -23,9 +23,6 @@ public class Level3QuestManager : MonoBehaviour
     public PlayableDirector cutscene;
     public GameObject cutscenePanel;
 
-    [Header("Player Spawn Point (default position to teleport back on catch)")]
-    public Transform playerSpawnPoint;
-
     [Header("HUDs")]
     public GameObject[] huds;
 
@@ -40,33 +37,31 @@ public class Level3QuestManager : MonoBehaviour
         lessonPanels = new GameObject[] { lessonPanel1, lessonPanel2, lessonPanel3 };
 
         if (tapAnywhereBtn != null)
+        {
             tapAnywhereBtn.onClick.AddListener(DismissLesson);
-
-        if (tapAnywhereBtn != null)
             tapAnywhereBtn.gameObject.SetActive(false);
+        }
 
-        // Hook into completion NPC
         if (completionNPC != null)
             completionNPC.onComplete = CompleteLevel;
     }
 
     public void OnPlayerCaught()
     {
-        // Freeze player
+        HidingSpot.Reset();
+
         foreach (var pm in FindObjectsOfType<PlayerMovement>()) pm.Freeze();
         foreach (var ps in FindObjectsOfType<PlayerSpaceMovement>()) ps.enabled = false;
-
-        // Pause all guards
         foreach (var guard in FindObjectsOfType<GuardPatrol>()) guard.paused = true;
-
-        // Hide HUD controller so player can't move
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        // Show lesson panel then go back to PreLevel3Scene on dismiss
         if (darkBg != null) darkBg.SetActive(true);
+
         int panelIndex = Mathf.Clamp(catchCount, 0, lessonPanels.Length - 1);
         if (lessonPanels[panelIndex] != null) lessonPanels[panelIndex].SetActive(true);
-        tapAnywhereBtn.gameObject.SetActive(true);
+
+        if (tapAnywhereBtn != null) tapAnywhereBtn.gameObject.SetActive(true);
+
         catchCount++;
     }
 
@@ -77,7 +72,6 @@ public class Level3QuestManager : MonoBehaviour
 
     void CompleteLevel()
     {
-        // Disable all interactables
         foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
         {
             if (obj.questionMark != null) obj.questionMark.SetActive(false);
@@ -86,11 +80,9 @@ public class Level3QuestManager : MonoBehaviour
             if (col != null) col.enabled = false;
         }
 
-        // Freeze player and guards during cutscene
         foreach (var pm in FindObjectsOfType<PlayerMovement>()) pm.enabled = false;
         foreach (var ps in FindObjectsOfType<PlayerSpaceMovement>()) ps.enabled = false;
         foreach (var guard in FindObjectsOfType<GuardPatrol>()) guard.paused = true;
-
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
         if (cutscene != null)
@@ -112,6 +104,5 @@ public class Level3QuestManager : MonoBehaviour
         if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
     }
 
-    // Called by InteractableObject when player interacts with the completion NPC
     public void StartQuest() { CompleteLevel(); }
 }

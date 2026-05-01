@@ -68,7 +68,7 @@ public class LeaderboardManager : MonoBehaviour
                     return;
                 }
 
-                var entries = new List<(string name, int score)>();
+                var entries = new List<(string name, string lastName, int score, double quizTime, System.DateTime submittedAt)>();
 
                 foreach (DocumentSnapshot doc in task.Result.Documents)
                 {
@@ -77,6 +77,11 @@ public class LeaderboardManager : MonoBehaviour
                     var d = doc.ToDictionary();
                     if (!d.ContainsKey("quiz_score")) continue;
                     int quizScore = System.Convert.ToInt32(d["quiz_score"]);
+                    double quizTime = d.ContainsKey("quiz_time") ? System.Convert.ToDouble(d["quiz_time"]) : double.MaxValue;
+                    System.DateTime submittedAt = System.DateTime.MinValue;
+                    if (d.ContainsKey("quiz_submitted_at") && d["quiz_submitted_at"] is Timestamp ts)
+                        submittedAt = ts.ToDateTime();
+
                     string first  = d.ContainsKey("first_name")  ? d["first_name"].ToString()  : "";
                     string middle = d.ContainsKey("middle_name") ? d["middle_name"].ToString() : "";
                     string last   = d.ContainsKey("last_name")   ? d["last_name"].ToString()   : "";
@@ -84,11 +89,14 @@ public class LeaderboardManager : MonoBehaviour
                     string mi = !string.IsNullOrEmpty(middle) ? $" {middle[0]}." : "";
                     string displayName = $"{last}, {first}{mi}".Trim();
 
-                    entries.Add((displayName, quizScore));
+                    entries.Add((displayName, last, quizScore, quizTime, submittedAt));
                 }
 
                 var top10 = entries
                     .OrderByDescending(e => e.score)
+                    .ThenBy(e => e.quizTime)
+                    .ThenByDescending(e => e.submittedAt)
+                    .ThenBy(e => e.lastName, System.StringComparer.OrdinalIgnoreCase)
                     .Take(10)
                     .ToList();
 

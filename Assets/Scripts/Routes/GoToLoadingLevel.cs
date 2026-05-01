@@ -5,7 +5,7 @@ public class GoToLoadingLevel : MonoBehaviour
 {
     public void OnButtonClick()
     {
-        SceneManager.LoadScene("LoadingToLevel");
+        SceneManager.LoadScene("IntroScene");
     }
 
     public void OnExitClick()

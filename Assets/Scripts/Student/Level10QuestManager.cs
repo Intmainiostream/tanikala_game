@@ -62,6 +62,11 @@ public class Level10QuestManager : MonoBehaviour
     public Button trueBtn;
     public Button falseBtn;
 
+    [Header("Timer")]
+    public GameObject timerPanel;
+    public TMP_Text timerText;
+    public float questionTime = 30f;
+
     [Header("Wrong Answer Panel")]
     public GameObject falsePanel;
     public TMP_Text falsePanelText;
@@ -84,6 +89,11 @@ public class Level10QuestManager : MonoBehaviour
     private int currentIndex = 0;
     private bool showingFalsePanel = false;
     private int score = 0;
+    private int[] shuffledOrder;
+    private float timeLeft = 0f;
+    private bool timerRunning = false;
+    private float totalTimeSpent = 0f;
+    private bool isProcessing = false;
 
     private const int MCQ_POINTS = 3;
     private const int TF_POINTS  = 5;
@@ -107,6 +117,23 @@ public class Level10QuestManager : MonoBehaviour
 
         tapAnywhereBtn.onClick.AddListener(OnTapAnywhere);
         tapAnywhereBtn.gameObject.SetActive(false);
+
+        if (timerPanel != null) timerPanel.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (!timerRunning) return;
+
+        timeLeft -= Time.deltaTime;
+        if (timerText != null)
+            timerText.text = Mathf.CeilToInt(Mathf.Max(0f, timeLeft)).ToString();
+
+        if (timeLeft <= 0f)
+        {
+            timerRunning = false;
+            OnTimeUp();
+        }
     }
 
     // ─── Entry point ─────────────────────────────────────────────────────────
@@ -115,6 +142,8 @@ public class Level10QuestManager : MonoBehaviour
     {
         currentIndex = 0;
         score = 0;
+        totalTimeSpent = 0f;
+        shuffledOrder = ShuffleIndices(questions.Length);
         questPanel.SetActive(true);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
         ShowQuestion();
@@ -124,11 +153,13 @@ public class Level10QuestManager : MonoBehaviour
 
     void ShowQuestion()
     {
+        isProcessing = false;
+        Debug.Log($"[Quiz] ShowQuestion index={currentIndex} — isProcessing reset to false");
         audioSource.Stop();
         HideAllSubPanels();
         tapAnywhereBtn.gameObject.SetActive(false);
 
-        var q = questions[currentIndex];
+        var q = questions[shuffledOrder[currentIndex]];
         questionText.text = q.questionText;
 
         if (q.type == QuestionType.MCQ)
@@ -143,13 +174,45 @@ public class Level10QuestManager : MonoBehaviour
         {
             trueFalseBtnPanel.SetActive(true);
         }
+
+        StartTimer();
+    }
+
+    // ─── Timer ───────────────────────────────────────────────────────────────
+
+    void StartTimer()
+    {
+        timeLeft = questionTime;
+        timerRunning = true;
+        if (timerPanel != null) timerPanel.SetActive(true);
+        if (timerText != null) timerText.text = Mathf.CeilToInt(questionTime).ToString();
+    }
+
+    void StopTimer()
+    {
+        timerRunning = false;
+        if (timerPanel != null) timerPanel.SetActive(false);
+    }
+
+    void OnTimeUp()
+    {
+        totalTimeSpent += questionTime;
+        StopTimer();
+        var q = questions[shuffledOrder[currentIndex]];
+        PlaySound(q.wrongSound);
+        ShowFalsePanel(q.wrongExplanation);
     }
 
     // ─── MCQ ─────────────────────────────────────────────────────────────────
 
     void OnMCQ(int chosen)
     {
-        var q = questions[currentIndex];
+        if (isProcessing) { Debug.Log("[Quiz] OnMCQ BLOCKED by isProcessing"); return; }
+        isProcessing = true;
+        Debug.Log($"[Quiz] OnMCQ chosen={chosen} index={currentIndex} isProcessing={isProcessing}");
+        totalTimeSpent += questionTime - Mathf.Max(0f, timeLeft);
+        StopTimer();
+        var q = questions[shuffledOrder[currentIndex]];
         if (chosen == q.correctChoice)
         {
             score += MCQ_POINTS;
@@ -167,7 +230,12 @@ public class Level10QuestManager : MonoBehaviour
 
     void OnTrueFalse(bool playerSaidTrue)
     {
-        var q = questions[currentIndex];
+        if (isProcessing) { Debug.Log("[Quiz] OnTrueFalse BLOCKED by isProcessing"); return; }
+        isProcessing = true;
+        Debug.Log($"[Quiz] OnTrueFalse playerSaidTrue={playerSaidTrue} index={currentIndex}");
+        totalTimeSpent += questionTime - Mathf.Max(0f, timeLeft);
+        StopTimer();
+        var q = questions[shuffledOrder[currentIndex]];
         if (playerSaidTrue == q.isTrue)
         {
             score += TF_POINTS;
@@ -185,6 +253,8 @@ public class Level10QuestManager : MonoBehaviour
 
     void ShowFalsePanel(string explanation)
     {
+        isProcessing = false;
+        Debug.Log($"[Quiz] ShowFalsePanel — isProcessing reset to false, tapBtn shown");
         HideAllSubPanels();
         falsePanelText.text = explanation;
         falsePanel.SetActive(true);
@@ -196,17 +266,21 @@ public class Level10QuestManager : MonoBehaviour
 
     void Advance()
     {
+        isProcessing = false;
+        Debug.Log($"[Quiz] Advance — isProcessing reset to false, tapBtn shown");
         HideAllSubPanels();
         tapAnywhereBtn.gameObject.SetActive(true);
     }
 
     void OnTapAnywhere()
     {
+        Debug.Log($"[Quiz] OnTapAnywhere fired — index={currentIndex} isProcessing={isProcessing}");
         tapAnywhereBtn.gameObject.SetActive(false);
         showingFalsePanel = false;
         falsePanel.SetActive(false);
 
         currentIndex++;
+        Debug.Log($"[Quiz] OnTapAnywhere advancing to index={currentIndex}");
         if (currentIndex >= questions.Length)
             EndQuiz();
         else
@@ -215,6 +289,7 @@ public class Level10QuestManager : MonoBehaviour
 
     void EndQuiz()
     {
+        StopTimer();
         questPanel.SetActive(false);
 
         if (huds.Length > 1 && huds[1] != null)
@@ -244,19 +319,22 @@ public class Level10QuestManager : MonoBehaviour
 
         FirebaseFirestore db = FirebaseFirestore.DefaultInstance;
 
-        // Only save if no score exists yet — first try is permanent
         db.Collection("users").Document(GlobalUserData.UserId)
             .GetSnapshotAsync()
             .ContinueWithOnMainThread(task =>
             {
                 if (!task.IsFaulted && task.Result.Exists && task.Result.ToDictionary().ContainsKey("quiz_score"))
                 {
-                    // Score already exists, don't overwrite
                     onDone?.Invoke();
                     return;
                 }
 
-                var updates = new Dictionary<string, object> { { "quiz_score", score } };
+                var updates = new Dictionary<string, object>
+                {
+                    { "quiz_score", score },
+                    { "quiz_time", totalTimeSpent },
+                    { "quiz_submitted_at", FieldValue.ServerTimestamp }
+                };
                 db.Collection("users").Document(GlobalUserData.UserId)
                     .UpdateAsync(updates)
                     .ContinueWithOnMainThread(updateTask =>
@@ -290,5 +368,17 @@ public class Level10QuestManager : MonoBehaviour
         audioSource.Stop();
         audioSource.clip = clip;
         audioSource.Play();
+    }
+
+    int[] ShuffleIndices(int count)
+    {
+        int[] indices = new int[count];
+        for (int i = 0; i < count; i++) indices[i] = i;
+        for (int i = count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            int tmp = indices[i]; indices[i] = indices[j]; indices[j] = tmp;
+        }
+        return indices;
     }
 }

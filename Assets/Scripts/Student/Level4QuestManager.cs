@@ -112,7 +112,14 @@ public class Level4QuestManager : MonoBehaviour
 
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(true);
 
-        if (currentFlyerIndex >= 0) flyersFound[currentFlyerIndex] = true;
+        if (currentFlyerIndex >= 0)
+        {
+            flyersFound[currentFlyerIndex] = true;
+
+            // Hide the bench so the player thinks they need to find another one
+            if (currentFlyerIndex == 0 && bench1Object != null) bench1Object.SetActive(false);
+            else if (currentFlyerIndex == 1 && bench2Object != null) bench2Object.SetActive(false);
+        }
         currentFlyerIndex = -1;
 
         bool allFound = true;

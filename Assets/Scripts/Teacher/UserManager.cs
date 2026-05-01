@@ -34,6 +34,10 @@ public class UserManager : MonoBehaviour
     [Header("Success Panel")]
     public GameObject SuccessEditPanel;
     public GameObject SuccessPanel;
+    [Header("Failed Panel")]
+    public GameObject FailedPanel;
+    [Header("Loading Panel")]
+    public GameObject loadingPanel;
     [Header("Add Student Panel")]
     public GameObject addStudentContainer;
     public TMP_InputField studentEmailField;
@@ -102,6 +106,8 @@ public class UserManager : MonoBehaviour
     {
         db = FirebaseFirestore.DefaultInstance;
         auth = FirebaseAuth.DefaultInstance;
+        if (FailedPanel != null)   FailedPanel.SetActive(false);
+        if (loadingPanel != null)  loadingPanel.SetActive(false);
 
         if (addStudentBtn != null)
             addStudentBtn.onClick.AddListener(() =>
@@ -363,6 +369,9 @@ if (archiveContinueBtn != null)
         }
         if (!valid) return;
 
+        if (editSaveBtn != null)   editSaveBtn.interactable = false;
+        if (loadingPanel != null)  loadingPanel.SetActive(true);
+
         Dictionary<string, object> updates = new Dictionary<string, object>
         {
             { "first_name", firstName },
@@ -373,6 +382,8 @@ if (archiveContinueBtn != null)
         db.Collection("users").Document(editingDocID).UpdateAsync(updates)
             .ContinueWithOnMainThread(task =>
             {
+                if (editSaveBtn != null)  editSaveBtn.interactable = true;
+                if (loadingPanel != null) loadingPanel.SetActive(false);
                 if (task.IsCompletedSuccessfully)
                 {
                     Debug.Log("✅ User updated.");
@@ -399,6 +410,9 @@ if (archiveContinueBtn != null)
     {
         if (string.IsNullOrEmpty(archivingDocID)) return;
 
+        if (archiveContinueBtn != null) archiveContinueBtn.interactable = false;
+        if (loadingPanel != null)       loadingPanel.SetActive(true);
+
         DocumentReference sourceRef = db.Collection("users").Document(archivingDocID);
 
         sourceRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
@@ -406,6 +420,8 @@ if (archiveContinueBtn != null)
             if (task.IsFaulted || !task.Result.Exists)
             {
                 Debug.LogError("❌ User not found: " + task.Exception);
+                if (archiveContinueBtn != null) archiveContinueBtn.interactable = true;
+                if (loadingPanel != null)       loadingPanel.SetActive(false);
                 return;
             }
 
@@ -418,11 +434,15 @@ if (archiveContinueBtn != null)
                     if (!setTask.IsCompletedSuccessfully)
                     {
                         Debug.LogError("❌ Failed to archive: " + setTask.Exception);
+                        if (archiveContinueBtn != null) archiveContinueBtn.interactable = true;
+                        if (loadingPanel != null)       loadingPanel.SetActive(false);
                         return;
                     }
 
                     sourceRef.DeleteAsync().ContinueWithOnMainThread(deleteTask =>
                     {
+                        if (archiveContinueBtn != null) archiveContinueBtn.interactable = true;
+                        if (loadingPanel != null)       loadingPanel.SetActive(false);
                         if (deleteTask.IsCompletedSuccessfully)
                         {
                             Debug.Log("✅ User archived.");
@@ -452,6 +472,9 @@ if (archiveContinueBtn != null)
 
         if (!ValidateStudentFields(email, password, firstName, lastName)) return;
 
+        if (studentSaveBtn != null) studentSaveBtn.interactable = false;
+        if (loadingPanel != null)   loadingPanel.SetActive(true);
+
         auth.CreateUserWithEmailAndPasswordAsync(email, password)
             .ContinueWithOnMainThread(task =>
             {
@@ -459,6 +482,9 @@ if (archiveContinueBtn != null)
                 {
                     Debug.LogError("❌ Failed to create student auth: " +
                         task.Exception?.Flatten().InnerException?.Message);
+                    if (studentSaveBtn != null) studentSaveBtn.interactable = true;
+                    if (loadingPanel != null)   loadingPanel.SetActive(false);
+                    StartCoroutine(ShowFailedPanel());
                     return;
                 }
 
@@ -488,6 +514,8 @@ if (archiveContinueBtn != null)
                 db.Collection("users").Document(uid).SetAsync(userData)
                     .ContinueWithOnMainThread(fsTask =>
                     {
+                        if (studentSaveBtn != null) studentSaveBtn.interactable = true;
+                        if (loadingPanel != null)   loadingPanel.SetActive(false);
                         if (fsTask.IsCompletedSuccessfully)
                         {
                             Debug.Log("✅ Student added to users.");
@@ -499,6 +527,7 @@ if (archiveContinueBtn != null)
                         else
                         {
                             Debug.LogError("❌ Firestore error: " + fsTask.Exception);
+                            StartCoroutine(ShowFailedPanel());
                         }
                     });
             });
@@ -518,6 +547,9 @@ if (archiveContinueBtn != null)
 
         if (!ValidateTeacherFields(email, password, firstName, lastName)) return;
 
+        if (teacherSaveBtn != null) teacherSaveBtn.interactable = false;
+        if (loadingPanel != null)   loadingPanel.SetActive(true);
+
         auth.CreateUserWithEmailAndPasswordAsync(email, password)
             .ContinueWithOnMainThread(task =>
             {
@@ -525,6 +557,9 @@ if (archiveContinueBtn != null)
                 {
                     Debug.LogError("❌ Failed to create teacher auth: " +
                         task.Exception?.Flatten().InnerException?.Message);
+                    if (teacherSaveBtn != null) teacherSaveBtn.interactable = true;
+                    if (loadingPanel != null)   loadingPanel.SetActive(false);
+                    StartCoroutine(ShowFailedPanel());
                     return;
                 }
 
@@ -554,6 +589,8 @@ if (archiveContinueBtn != null)
                 db.Collection("users").Document(uid).SetAsync(teacherData)
                     .ContinueWithOnMainThread(fsTask =>
                     {
+                        if (teacherSaveBtn != null) teacherSaveBtn.interactable = true;
+                        if (loadingPanel != null)   loadingPanel.SetActive(false);
                         if (fsTask.IsCompletedSuccessfully)
                         {
                             Debug.Log("✅ Teacher added to users.");
@@ -565,6 +602,7 @@ if (archiveContinueBtn != null)
                         else
                         {
                             Debug.LogError("❌ Firestore error: " + fsTask.Exception);
+                            StartCoroutine(ShowFailedPanel());
                         }
                     });
             });
@@ -697,7 +735,7 @@ if (archiveContinueBtn != null)
             MailMessage mail = new MailMessage();
             SmtpClient smtpServer = new SmtpClient("smtp.gmail.com");
 
-            mail.From = new MailAddress("dazzledev23@gmail.com", "Tanikala at Laya Team");
+            mail.From = new MailAddress(AppSecrets.SmtpEmail, "Tanikala at Laya Team");
             mail.To.Add(recipientEmail);
             mail.Subject = $"Welcome to Tanikala at Laya!";
             mail.IsBodyHtml = true;
@@ -722,7 +760,7 @@ if (archiveContinueBtn != null)
 </html>";
 
             smtpServer.Port = 587;
-            smtpServer.Credentials = new NetworkCredential("dazzledev23@gmail.com", "fpnw uent irxd wote");
+            smtpServer.Credentials = new NetworkCredential(AppSecrets.SmtpEmail, AppSecrets.SmtpPassword);
             smtpServer.EnableSsl = true;
 
             ServicePointManager.ServerCertificateValidationCallback =
@@ -836,6 +874,14 @@ IEnumerator ShowSuccessPanel()
     SuccessPanel.SetActive(true);
     yield return new WaitForSeconds(3f);
     SuccessPanel.SetActive(false);
+}
+
+IEnumerator ShowFailedPanel()
+{
+    if (darkOverlay != null) darkOverlay.SetActive(false);
+    if (FailedPanel != null) FailedPanel.SetActive(true);
+    yield return new WaitForSeconds(3f);
+    if (FailedPanel != null) FailedPanel.SetActive(false);
 }
     void OnDestroy()
     {

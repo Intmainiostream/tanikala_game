@@ -29,3 +29,7 @@ ExportedObj/
 .DS_Store
 Thumbs.db
 /Assets/Firebase
+
+# Secrets — never commit
+Assets/Scripts/AppSecrets.cs
+Assets/Scripts/AppSecrets.cs.meta

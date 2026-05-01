@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Firebase.Auth;
 
 public class Logout : MonoBehaviour
 {
     public void LogoutUser()
     {
-        // Clear saved login/session data
+        FirebaseAuth.DefaultInstance.SignOut();
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
-
-        // Load login scene
         SceneManager.LoadScene("LoginScene");
     }
 }

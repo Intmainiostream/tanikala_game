@@ -188,7 +188,7 @@ public class LevelSelectionManager : MonoBehaviour
         if (GlobalUserData.IsGuest)
         {
             PlayerPrefs.SetString("level_" + levelNumber, "finished");
-            if (nextLevel <= 10)
+            if (nextLevel <= 10 && PlayerPrefs.GetString("level_" + nextLevel, "locked") != "finished")
                 PlayerPrefs.SetString("level_" + nextLevel, "unlocked");
             PlayerPrefs.Save();
             onComplete?.Invoke();
@@ -206,9 +206,35 @@ public class LevelSelectionManager : MonoBehaviour
 
             Dictionary<string, object> updates = new Dictionary<string, object>();
             updates["level_progress." + levelNumber] = "finished";
-            if (nextLevel <= 10)
-                updates["level_progress." + nextLevel] = "unlocked";
 
+            if (nextLevel <= 10)
+            {
+                db.Collection("users").Document(GlobalUserData.UserId)
+                    .GetSnapshotAsync().ContinueWithOnMainThread(readTask =>
+                    {
+                        if (!readTask.IsFaulted && readTask.Result.Exists)
+                        {
+                            string currentStatus = "locked";
+                            if (readTask.Result.TryGetValue("level_progress", out Dictionary<string, object> raw) && raw.ContainsKey(nextLevel.ToString()))
+                                currentStatus = raw[nextLevel.ToString()].ToString();
+
+                            if (currentStatus != "finished")
+                                updates["level_progress." + nextLevel] = "unlocked";
+                        }
+
+                        db.Collection("users").Document(GlobalUserData.UserId)
+                            .UpdateAsync(updates)
+                            .ContinueWithOnMainThread(task =>
+                            {
+                                if (task.IsFaulted)
+                                    Debug.LogError("Failed to save level progress: " + task.Exception);
+                                onComplete?.Invoke();
+                            });
+                    });
+                return;
+            }
+
+            if (nextLevel > 10)
             db.Collection("users").Document(GlobalUserData.UserId)
                 .UpdateAsync(updates)
                 .ContinueWithOnMainThread(task =>

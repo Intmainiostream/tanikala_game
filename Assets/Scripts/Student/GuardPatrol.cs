@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 public class GuardPatrol : MonoBehaviour
 {
@@ -12,7 +13,14 @@ public class GuardPatrol : MonoBehaviour
 
     [Header("Detection")]
     public float detectionRadius = 3f;
+    public float mobileDetectionRadius = 80f;
     public float detectionDelay = 1f;
+    public bool requireFacingPlayer = true;
+
+    [Header("Debug UI")]
+    public GameObject SeenTxt;
+    public GameObject HiddenTxt;
+    public GameObject WarningTxt;
 
     public bool paused = false;
 
@@ -20,19 +28,19 @@ public class GuardPatrol : MonoBehaviour
     private float timer = 0f;
     private float detectionTimer = 0f;
     private float startupTimer = 0f;
-    private float interactionStuckTimer = 0f;
     private bool ready = false;
-    private bool lookingLeft = true;
+    public bool lookingLeft = true;
     private bool hasCaught = false;
     private Level3QuestManager questManager;
-    private Transform player;
+    public Transform player;
 
     void Start()
     {
         sr = GetComponent<SpriteRenderer>();
         questManager = FindObjectOfType<Level3QuestManager>();
-        GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
 
         HidingSpot.Reset();
         InteractableObject.AnyInteractionActive = false;
@@ -42,23 +50,27 @@ public class GuardPatrol : MonoBehaviour
 
     void Update()
     {
-        if (paused) return;
+        if (player == null)
+        {
+            GameObject p = GameObject.FindGameObjectWithTag("Player");
+            if (p != null) player = p.transform;
+        }
+
+        if (paused)
+        {
+            HideAllUI();
+            return;
+        }
 
         if (!ready)
         {
             startupTimer += Time.deltaTime;
-            if (startupTimer >= 0.5f)
-            {
-                HidingSpot.Reset();
-                InteractableObject.AnyInteractionActive = false;
-                ready = true;
-            }
+            if (startupTimer >= 2f) ready = true;
             return;
         }
 
         timer += Time.deltaTime;
         float currentDuration = lookingLeft ? lookLeftDuration : lookRightDuration;
-
         if (timer >= currentDuration)
         {
             timer = 0f;
@@ -75,39 +87,65 @@ public class GuardPatrol : MonoBehaviour
         sr.sprite = lookingLeft ? leftIdleSprite : rightIdleSprite;
     }
 
+    void HideAllUI()
+    {
+        if (SeenTxt != null) SeenTxt.SetActive(false);
+        if (HiddenTxt != null) HiddenTxt.SetActive(false);
+        if (WarningTxt != null) WarningTxt.SetActive(false);
+    }
+
     void CheckDetection()
     {
         if (hasCaught || player == null) return;
+
         if (InteractableObject.AnyInteractionActive)
         {
-            interactionStuckTimer += Time.deltaTime;
-            if (interactionStuckTimer >= 5f)
-            {
-                Debug.Log("[Guard] AnyInteractionActive stuck — force resetting");
-                InteractableObject.AnyInteractionActive = false;
-                interactionStuckTimer = 0f;
-            }
+            HideAllUI();
+            detectionTimer = 0f;
             return;
         }
-        interactionStuckTimer = 0f;
 
-        if (HidingSpot.IsPlayerHiding) { Debug.Log("[Guard] blocked: IsPlayerHiding=true"); return; }
-
-        float dist = Vector2.Distance(transform.position, player.position);
-        bool inRange = dist <= detectionRadius;
-
-        if (inRange)
+        if (HidingSpot.IsPlayerHiding)
         {
+            if (HiddenTxt != null) HiddenTxt.SetActive(true);
+            if (SeenTxt != null) SeenTxt.SetActive(false);
+            if (WarningTxt != null) WarningTxt.SetActive(false);
+            detectionTimer = 0f;
+            return;
+        }
+
+        float dx = player.position.x - transform.position.x;
+        float dist = Vector2.Distance(transform.position, player.position);
+#if UNITY_ANDROID || UNITY_IOS
+        float radius = mobileDetectionRadius;
+#else
+        float radius = detectionRadius;
+#endif
+        bool inRange = dist <= radius;
+        bool playerIsLeft = dx < 0f;
+        bool facingPlayer = (lookingLeft && playerIsLeft) || (!lookingLeft && !playerIsLeft);
+
+        bool canSee = inRange && (!requireFacingPlayer || facingPlayer);
+
+        if (canSee)
+        {
+            if (SeenTxt != null) SeenTxt.SetActive(true);
+            if (HiddenTxt != null) HiddenTxt.SetActive(false);
+            if (WarningTxt != null) WarningTxt.SetActive(false);
+
             detectionTimer += Time.deltaTime;
             if (detectionTimer >= detectionDelay)
             {
-                hasCaught = true;
                 detectionTimer = 0f;
+                hasCaught = true;
+                if (SeenTxt != null) SeenTxt.SetActive(false);
+                if (WarningTxt != null) WarningTxt.SetActive(true);
                 questManager?.OnPlayerCaught();
             }
         }
         else
         {
+            HideAllUI();
             detectionTimer = 0f;
         }
     }
@@ -115,6 +153,8 @@ public class GuardPatrol : MonoBehaviour
     public void ResetCaught()
     {
         hasCaught = false;
+        detectionTimer = 0f;
+        HideAllUI();
     }
 
     void OnDrawGizmosSelected()

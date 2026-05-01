@@ -18,23 +18,23 @@ public class ForgotPasswordManager : MonoBehaviour
 
     private int sendAttempts = 0;
     private int maxAttempts = 3;
-    private float cooldownDuration = 300f;
-    private float cooldownEndTime;
+    private long cooldownDuration = 300;
+    private long cooldownEndUnix = 0;
     private bool isOnCooldown = false;
 
     void Start()
     {
         auth = FirebaseAuth.DefaultInstance;
 
-        cooldownEndTime = PlayerPrefs.GetFloat("ForgotPwdCooldownEndTime", 0f);
+        cooldownEndUnix = long.Parse(PlayerPrefs.GetString("ForgotPwdCooldownEndUnix", "0"));
 
-        if (Time.time < cooldownEndTime)
+        if (System.DateTimeOffset.UtcNow.ToUnixTimeSeconds() < cooldownEndUnix)
         {
-            float remaining = cooldownEndTime - Time.time;
+            long remaining = cooldownEndUnix - System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             isOnCooldown = true;
             sendAttempts = maxAttempts;
             sendButton.interactable = false;
-            forgotStatusText.text = $"Too many attempts. Try again in {(int)remaining} seconds.";
+            forgotStatusText.text = $"Too many attempts. Try again in {remaining} seconds.";
             InvokeRepeating(nameof(UpdateCooldownStatus), 1f, 1f);
         }
 
@@ -59,7 +59,8 @@ public class ForgotPasswordManager : MonoBehaviour
 
         if (isOnCooldown)
         {
-            forgotStatusText.text = $"Try again in {(int)(cooldownEndTime - Time.time)} seconds.";
+            long remaining = cooldownEndUnix - System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            forgotStatusText.text = $"Try again in {remaining} seconds.";
             return;
         }
 
@@ -92,9 +93,9 @@ public class ForgotPasswordManager : MonoBehaviour
     void StartCooldown()
     {
         isOnCooldown = true;
-        cooldownEndTime = Time.time + cooldownDuration;
+        cooldownEndUnix = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds() + cooldownDuration;
 
-        PlayerPrefs.SetFloat("ForgotPwdCooldownEndTime", cooldownEndTime);
+        PlayerPrefs.SetString("ForgotPwdCooldownEndUnix", cooldownEndUnix.ToString());
         PlayerPrefs.Save();
 
         sendButton.interactable = false;
@@ -104,7 +105,7 @@ public class ForgotPasswordManager : MonoBehaviour
 
     void UpdateCooldownStatus()
     {
-        float remaining = cooldownEndTime - Time.time;
+        long remaining = cooldownEndUnix - System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         if (remaining <= 0)
         {
@@ -113,14 +114,14 @@ public class ForgotPasswordManager : MonoBehaviour
             sendButton.interactable = IsValidEmail(emailInputField.text.Trim());
             forgotStatusText.text = "You may now try again.";
 
-            PlayerPrefs.SetFloat("ForgotPwdCooldownEndTime", 0f);
+            PlayerPrefs.SetString("ForgotPwdCooldownEndUnix", "0");
             PlayerPrefs.Save();
 
             CancelInvoke(nameof(UpdateCooldownStatus));
         }
         else
         {
-            forgotStatusText.text = $"Try again in {(int)remaining} seconds.";
+            forgotStatusText.text = $"Try again in {remaining} seconds.";
         }
     }
 

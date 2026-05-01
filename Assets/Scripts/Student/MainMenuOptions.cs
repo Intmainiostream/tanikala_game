@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using Firebase.Auth;
 
 public class MainMenuOptions : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class MainMenuOptions : MonoBehaviour
 
     void Logout()
     {
+        FirebaseAuth.DefaultInstance.SignOut();
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
         SceneManager.LoadScene("LoginScene");

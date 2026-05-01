@@ -39,6 +39,9 @@ public class ArchiveManager : MonoBehaviour
     [Header("Overlay")]
     public GameObject darkOverlay;
 
+    [Header("Loading Panel")]
+    public GameObject loadingPanel;
+
     [Header("Success Panel")]
     public GameObject successPanel;
 
@@ -49,6 +52,7 @@ public class ArchiveManager : MonoBehaviour
         db = FirebaseFirestore.DefaultInstance;
 
         if (teacherContainer != null) teacherContainer.SetActive(false);
+        if (loadingPanel != null) loadingPanel.SetActive(false);
 
         if (userFilterDropdown != null)
             userFilterDropdown.onValueChanged.AddListener(OnFilterChanged);
@@ -186,6 +190,11 @@ public class ArchiveManager : MonoBehaviour
 
     void RestoreUser_Confirmed()
     {
+        if (restoreContinueBtn != null) restoreContinueBtn.interactable = false;
+        if (restoreValidation != null) restoreValidation.SetActive(false);
+        if (darkOverlay != null) darkOverlay.SetActive(false);
+        if (loadingPanel != null) loadingPanel.SetActive(true);
+
         DocumentReference archiveRef = db.Collection("archived_users").Document(restoringDocID);
 
         archiveRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
@@ -193,6 +202,8 @@ public class ArchiveManager : MonoBehaviour
             if (task.IsFaulted || !task.Result.Exists)
             {
                 Debug.LogError("❌ Archived user not found: " + task.Exception);
+                if (restoreContinueBtn != null) restoreContinueBtn.interactable = true;
+                if (loadingPanel != null) loadingPanel.SetActive(false);
                 return;
             }
 
@@ -205,11 +216,15 @@ public class ArchiveManager : MonoBehaviour
                     if (!setTask.IsCompletedSuccessfully)
                     {
                         Debug.LogError("❌ Failed to restore: " + setTask.Exception);
+                        if (restoreContinueBtn != null) restoreContinueBtn.interactable = true;
+                        if (loadingPanel != null) loadingPanel.SetActive(false);
                         return;
                     }
 
                     archiveRef.DeleteAsync().ContinueWithOnMainThread(deleteTask =>
                     {
+                        if (restoreContinueBtn != null) restoreContinueBtn.interactable = true;
+                        if (loadingPanel != null) loadingPanel.SetActive(false);
                         if (deleteTask.IsCompletedSuccessfully)
                         {
                             Debug.Log("✅ User restored.");

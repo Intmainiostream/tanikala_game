@@ -33,6 +33,7 @@ public class LoginManager : MonoBehaviour
                 auth = FirebaseAuth.DefaultInstance;
                 firestore = FirebaseFirestore.DefaultInstance;
                 Debug.Log("✅ Firebase initialized.");
+                CheckAutoLogin();
             }
             else
             {
@@ -47,6 +48,55 @@ public class LoginManager : MonoBehaviour
 
         if (LockText != null)
             LockText.gameObject.SetActive(false);
+
+        long lockEndUnix = long.Parse(PlayerPrefs.GetString("LoginLockEndUnix", "0"));
+        int secondsLeft = (int)(lockEndUnix - System.DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        if (secondsLeft > 0)
+            StartCoroutine(LockLogin(secondsLeft));
+    }
+
+    void CheckAutoLogin()
+    {
+        FirebaseUser user = auth.CurrentUser;
+        if (user == null || !user.IsEmailVerified) return;
+
+        SetStatus("Logging in...", Color.blue);
+        LoginBtn.interactable = false;
+
+        firestore.Collection("users").Document(user.UserId)
+            .GetSnapshotAsync()
+            .ContinueWithOnMainThread(task =>
+            {
+                if (!task.IsCompleted || !task.Result.Exists)
+                {
+                    auth.SignOut();
+                    LoginBtn.interactable = true;
+                    SetStatus("", Color.white);
+                    return;
+                }
+
+                string role = task.Result.ContainsField("role")
+                    ? task.Result.GetValue<string>("role") : "";
+
+                firestore.Collection("users").Document(user.UserId).UpdateAsync("is_verified", true);
+
+                if (role == "teacher")
+                {
+                    SceneManager.LoadScene("LoadingToTeacher");
+                }
+                else if (role == "student")
+                {
+                    GlobalUserData.UserId = user.UserId;
+                    GlobalUserData.IsGuest = false;
+                    SceneManager.LoadScene("LoadingToMainMenu");
+                }
+                else
+                {
+                    auth.SignOut();
+                    LoginBtn.interactable = true;
+                    SetStatus("", Color.white);
+                }
+            });
     }
 
     void OnLoginPressed()
@@ -73,7 +123,7 @@ public class LoginManager : MonoBehaviour
 
                     if (failedAttempts >= 3)
                     {
-                        StartCoroutine(LockLogin());
+                        StartCoroutine(LockLogin(30));
                     }
                     else
                     {
@@ -146,8 +196,12 @@ public class LoginManager : MonoBehaviour
         PasswordField.ForceLabelUpdate();
     }
 
-    System.Collections.IEnumerator LockLogin()
+    System.Collections.IEnumerator LockLogin(int seconds)
     {
+        long lockEndUnix = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds() + seconds;
+        PlayerPrefs.SetString("LoginLockEndUnix", lockEndUnix.ToString());
+        PlayerPrefs.Save();
+
         isLocked = true;
         LoginBtn.interactable = false;
 
@@ -160,7 +214,7 @@ public class LoginManager : MonoBehaviour
             LockText.color = Color.red;
         }
 
-        int remainingTime = 30;
+        int remainingTime = seconds;
 
         if (LockText != null)
             LockText.text = "Too many failed attempts.\nTry again in " + remainingTime + " seconds.";
@@ -173,6 +227,9 @@ public class LoginManager : MonoBehaviour
             if (LockText != null)
                 LockText.text = "Too many failed attempts.\nTry again in " + remainingTime + " seconds.";
         }
+
+        PlayerPrefs.SetString("LoginLockEndUnix", "0");
+        PlayerPrefs.Save();
 
         failedAttempts = 0;
         isLocked = false;

@@ -23,6 +23,12 @@ public class SchoolYearManager : MonoBehaviour
     [Header("Success Panel")]
     public GameObject successPanel;
 
+    [Header("Failed Panel (shown when archiving fails)")]
+    public GameObject failedPanel;
+
+    [Header("Lock Message (shown when button is disabled)")]
+    public TMP_Text lockMessageText;
+
     private FirebaseFirestore db;
     private string currentSY = "";
 
@@ -36,6 +42,7 @@ public class SchoolYearManager : MonoBehaviour
         if (confirmBtn != null) confirmBtn.onClick.AddListener(OnConfirm);
         if (processingPanel != null) processingPanel.SetActive(false);
         if (successPanel != null)    successPanel.SetActive(false);
+        if (failedPanel != null)     failedPanel.SetActive(false);
 
         FetchCurrentSY();
     }
@@ -69,14 +76,23 @@ public class SchoolYearManager : MonoBehaviour
         if (confirmBtn == null) return;
 
         bool canUpdate = true;
+        string lockMsg = "";
+
         if (updatedYear > 0)
         {
-            // Clickable again on June 1 of the next year
             System.DateTime unlockDate = new System.DateTime(updatedYear + 1, 6, 1);
             canUpdate = System.DateTime.Now >= unlockDate;
+            if (!canUpdate)
+                lockMsg = $"Next update available on June 1, {updatedYear + 1}.";
         }
 
         confirmBtn.interactable = canUpdate;
+
+        if (lockMessageText != null)
+        {
+            lockMessageText.text = lockMsg;
+            lockMessageText.gameObject.SetActive(!canUpdate);
+        }
     }
 
     void UpdateSYTexts(string sy)
@@ -156,6 +172,7 @@ public class SchoolYearManager : MonoBehaviour
                 }
 
                 int remaining = docs.Count;
+                int failed = 0;
 
                 foreach (var doc in docs)
                 {
@@ -169,8 +186,14 @@ public class SchoolYearManager : MonoBehaviour
                         {
                             if (!setTask.IsCompletedSuccessfully)
                             {
+                                failed++;
                                 remaining--;
-                                if (remaining <= 0) OnArchivingDone();
+                                if (remaining <= 0)
+                                {
+                                    if (processingPanel != null) processingPanel.SetActive(false);
+                                    if (confirmBtn != null) confirmBtn.interactable = true;
+                                    if (failedPanel != null) StartCoroutine(ShowFailedPanel());
+                                }
                                 return;
                             }
 
@@ -178,7 +201,7 @@ public class SchoolYearManager : MonoBehaviour
                                 .ContinueWithOnMainThread(_ =>
                                 {
                                     remaining--;
-                                    if (remaining <= 0) OnArchivingDone();
+                                    if (remaining <= 0 && failed == 0) OnArchivingDone();
                                 });
                         });
                 }
@@ -198,5 +221,12 @@ public class SchoolYearManager : MonoBehaviour
         if (successPanel != null) successPanel.SetActive(true);
         yield return new WaitForSeconds(3f);
         if (successPanel != null) successPanel.SetActive(false);
+    }
+
+    IEnumerator ShowFailedPanel()
+    {
+        if (failedPanel != null) failedPanel.SetActive(true);
+        yield return new WaitForSeconds(3f);
+        if (failedPanel != null) failedPanel.SetActive(false);
     }
 }
