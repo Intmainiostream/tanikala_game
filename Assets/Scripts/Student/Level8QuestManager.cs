@@ -264,7 +264,7 @@ public class Level8QuestManager : MonoBehaviour
         if (endPanel != null)
         {
             endPanel.SetActive(true);
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(6f);
             endPanel.SetActive(false);
         }
 
