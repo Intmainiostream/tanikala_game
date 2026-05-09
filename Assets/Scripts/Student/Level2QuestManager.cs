@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level2QuestManager : MonoBehaviour
 {
@@ -78,8 +81,16 @@ public class Level2QuestManager : MonoBehaviour
     [Header("Stamp Effect")]
     public GameObject stampImage;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text approveCountText;
+    public TMP_Text notApproveCountText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private int currentIndex = 0;
+    private int approveCount = 0, notApproveCount = 0;
+    private bool currentDocCounted = false;
 
     private enum QuestState { Document, Dialogue, Choices, Response, Lesson }
     private QuestState state;
@@ -103,16 +114,6 @@ public class Level2QuestManager : MonoBehaviour
         audioSource.Play();
     }
 
-    System.Collections.IEnumerator PlaySupervisorThenComply(AudioClip supervisorClip)
-    {
-        if (supervisorClip != null)
-        {
-            PlaySound(supervisorClip);
-            yield return new WaitForSeconds(supervisorClip.length);
-        }
-        PlaySound(complyVoice);
-    }
-
     System.Collections.IEnumerator LoopAfterVoice(AudioClip supervisorClip)
     {
         if (supervisorClip != null)
@@ -134,7 +135,6 @@ public class Level2QuestManager : MonoBehaviour
         questPanel.SetActive(true);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        // Hide all documents, then only show the first
         foreach (DocumentEntry entry in documents)
             if (entry.document != null) entry.document.SetActive(false);
 
@@ -145,6 +145,7 @@ public class Level2QuestManager : MonoBehaviour
 
     void ShowDocument()
     {
+        currentDocCounted = false;
         state = QuestState.Document;
 
         dialoguePanel.SetActive(false);
@@ -163,21 +164,10 @@ public class Level2QuestManager : MonoBehaviour
     {
         switch (state)
         {
-            case QuestState.Document:
-                ShowDialogue();
-                break;
-
-            case QuestState.Dialogue:
-                ShowChoices();
-                break;
-
-            case QuestState.Response:
-                ShowLesson();
-                break;
-
-            case QuestState.Lesson:
-                NextDocument();
-                break;
+            case QuestState.Document:  ShowDialogue(); break;
+            case QuestState.Dialogue:  ShowChoices();  break;
+            case QuestState.Response:  ShowLesson();   break;
+            case QuestState.Lesson:    NextDocument(); break;
         }
     }
 
@@ -208,15 +198,14 @@ public class Level2QuestManager : MonoBehaviour
 
     void OnChoice(bool approved)
     {
+        if (!currentDocCounted) { if (approved) approveCount++; else notApproveCount++; currentDocCounted = true; }
         var entry = documents[currentIndex];
         choicesPanel.SetActive(false);
 
         if (approved == entry.mustApprove)
         {
-            // Correct — no voice, just proceed
             state = QuestState.Response;
 
-            // Only show stamp if mustApprove is checked
             if (entry.mustApprove && stampImage != null)
             {
                 stampImage.SetActive(false);
@@ -225,7 +214,6 @@ public class Level2QuestManager : MonoBehaviour
         }
         else
         {
-            // Wrong — boss scolds, then loop back
             AudioClip bossVoice = entry.mustApprove ? supervisorApproveVoice : supervisorDontApproveVoice;
             StartCoroutine(LoopAfterVoice(bossVoice));
             return;
@@ -266,7 +254,6 @@ public class Level2QuestManager : MonoBehaviour
     {
         if (stampImage != null) stampImage.SetActive(false);
 
-        // Hide current document
         if (documents[currentIndex].document != null)
             documents[currentIndex].document.SetActive(false);
 
@@ -278,7 +265,6 @@ public class Level2QuestManager : MonoBehaviour
             return;
         }
 
-        // Show next document
         if (documents[currentIndex].document != null)
             documents[currentIndex].document.SetActive(true);
 
@@ -287,27 +273,73 @@ public class Level2QuestManager : MonoBehaviour
 
     void EndQuest()
     {
+        SaveLevelData();
         audioSource.Stop();
         questPanel.SetActive(false);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+        ShowScorePanel();
+    }
+
+    void ShowScorePanel()
+    {
+        if (approveCountText != null) approveCountText.text = approveCount.ToString();
+        if (notApproveCountText != null) notApproveCountText.text = notApproveCount.ToString();
+
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(ShowEndPanel);
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (tapAnywhereScoreBtn != null) tapAnywhereScoreBtn.gameObject.SetActive(false);
 
         if (endPanel != null)
         {
-            // Show interact btn (huds[1]) so player can tap through end panel
             if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(true);
-
             endPanel.gameObject.SetActive(true);
             endPanel.onComplete = () =>
             {
                 if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(false);
-                if (levelCompleteManager != null)
-                    levelCompleteManager.OnLevelComplete();
+                if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
             };
         }
         else
         {
-            if (levelCompleteManager != null)
-                levelCompleteManager.OnLevelComplete();
+            if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
         }
+    }
+
+    void SaveLevelData()
+    {
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsCompletedSuccessfully) return;
+            if (task.Result.TryGetValue("level2_data", out object _)) return;
+
+            userRef.UpdateAsync("level2_data", new Dictionary<string, object>
+            {
+                { "approve", approveCount },
+                { "notApprove", notApproveCount }
+            });
+        });
     }
 }

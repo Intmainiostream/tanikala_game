@@ -95,8 +95,8 @@ public class ContentManager : MonoBehaviour
         GameObject row = Instantiate(rowPrefab, tableContent);
         Transform panel = row.transform.Find("Panel") ?? row.transform;
 
-        SetText(panel, "NameText",   name);
-        SetText(panel, "StatusText", !string.IsNullOrEmpty(pdfUrl) ? "Uploaded" : "No PDF");
+        SetText(panel, "NameText", name);
+        SetText(panel, "LvlText",  level > 0 ? "Level " + level : "—");
 
         Button uploadBtn = panel.Find("UploadBtn")?.GetComponent<Button>();
         Button removeBtn = panel.Find("RemoveBtn")?.GetComponent<Button>();
@@ -183,6 +183,7 @@ public class ContentManager : MonoBehaviour
         string moduleName  = moduleNameInput.text.Trim();
         string localPath   = pendingFilePath;
         string fileName    = System.IO.Path.GetFileName(localPath);
+        int    level       = lvlDropdown.value + 1;
 
         CloseAddPanel();
         string storagePath = "modules/" + System.Guid.NewGuid() + "_" + fileName;
@@ -224,6 +225,7 @@ public class ContentManager : MonoBehaviour
                     { "name",        moduleName },
                     { "pdfUrl",      pdfUrl },
                     { "storagePath", storagePath },
+                    { "level",       level },
                     { "createdAt",   Timestamp.GetCurrentTimestamp() }
                 };
 

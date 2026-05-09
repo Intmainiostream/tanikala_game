@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level5QuestManager : MonoBehaviour
 {
@@ -79,8 +82,16 @@ public class Level5QuestManager : MonoBehaviour
     [Header("Inner Monologue Voice (wrong choice)")]
     public AudioClip iHaveToDoItVoice;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text approveCountText;
+    public TMP_Text notApproveCountText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private int currentIndex = 0;
+    private int approveCount = 0, notApproveCount = 0;
+    private bool currentBallotCounted = false;
 
     private enum QuestState { Ballot, Dialogue, Choices, Response, WrongResponse, Lesson }
     private QuestState state;
@@ -120,6 +131,7 @@ public class Level5QuestManager : MonoBehaviour
 
     void ShowBallot()
     {
+        currentBallotCounted = false;
         state = QuestState.Ballot;
 
         dialoguePanel.SetActive(false);
@@ -169,30 +181,27 @@ public class Level5QuestManager : MonoBehaviour
         choicesPanel.SetActive(true);
         tapAnywhereBtn.gameObject.SetActive(false);
 
-        // Hide Hindi Aprubado for approve-only ballots (9 and 10)
         hindiAprubadoBtn.gameObject.SetActive(!ballots[currentIndex].approveOnly);
     }
 
     void OnChoice(bool approved)
     {
+        if (!currentBallotCounted) { if (approved) approveCount++; else notApproveCount++; currentBallotCounted = true; }
         var entry = ballots[currentIndex];
         choicesPanel.SetActive(false);
 
         if (!approved)
         {
-            // Show notApproveText first, tap will trigger scold + loop
             state = QuestState.WrongResponse;
-            var wrongEntry = ballots[currentIndex];
-            string wrongText = wrongEntry.notApproveText;
+            string wrongText = entry.notApproveText;
             responseText.text = wrongText;
             bool showWrong = !string.IsNullOrEmpty(wrongText);
             responsePanel.SetActive(showWrong);
-            if (showWrong) PlaySound(wrongEntry.notApproveSound);
+            if (showWrong) PlaySound(entry.notApproveSound);
             tapAnywhereBtn.gameObject.SetActive(true);
             return;
         }
 
-        // Correct — approved
         state = QuestState.Response;
 
         if (stampImage != null)
@@ -264,13 +273,12 @@ public class Level5QuestManager : MonoBehaviour
             return;
         }
 
-        // After ballot 8 (index 7 done → currentIndex is now 8), show pause panel
         if (currentIndex == 8 && pausePanel != null)
         {
             questPanel.SetActive(false);
             if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(true);
             pausePanel.gameObject.SetActive(true);
-            int indexAfterPause = currentIndex; // capture locally
+            int indexAfterPause = currentIndex;
             pausePanel.onComplete = () =>
             {
                 if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(false);
@@ -290,9 +298,38 @@ public class Level5QuestManager : MonoBehaviour
 
     void EndQuest()
     {
+        SaveLevelData();
         audioSource.Stop();
         questPanel.SetActive(false);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+        ShowScorePanel();
+    }
+
+    void ShowScorePanel()
+    {
+        if (approveCountText != null) approveCountText.text = approveCount.ToString();
+        if (notApproveCountText != null) notApproveCountText.text = notApproveCount.ToString();
+
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(ShowEndPanel);
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (tapAnywhereScoreBtn != null) tapAnywhereScoreBtn.gameObject.SetActive(false);
 
         if (endPanel != null)
         {
@@ -308,5 +345,26 @@ public class Level5QuestManager : MonoBehaviour
         {
             if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
         }
+    }
+
+    void SaveLevelData()
+    {
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsCompletedSuccessfully) return;
+            if (task.Result.TryGetValue("level5_data", out object _)) return;
+
+            userRef.UpdateAsync("level5_data", new Dictionary<string, object>
+            {
+                { "approve", approveCount },
+                { "notApprove", notApproveCount }
+            });
+        });
     }
 }

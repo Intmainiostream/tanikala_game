@@ -20,6 +20,15 @@ public class LoginManager : MonoBehaviour
     private FirebaseFirestore firestore;
 
     public TextMeshProUGUI LockText;
+    public GameObject LoggingInPanel;
+    public GameObject LoginBox;
+
+    [Header("Unverified Panel")]
+    public GameObject unverifiedPanel;
+    public Button resendEmailBtn;
+    public Button closeUnverifiedBtn;
+
+    private FirebaseUser pendingUnverifiedUser;
 
     private int failedAttempts = 0;
     private bool isLocked = false;
@@ -49,6 +58,19 @@ public class LoginManager : MonoBehaviour
         if (LockText != null)
             LockText.gameObject.SetActive(false);
 
+        if (unverifiedPanel != null) unverifiedPanel.SetActive(false);
+
+        if (resendEmailBtn != null)
+            resendEmailBtn.onClick.AddListener(() =>
+            {
+                if (pendingUnverifiedUser != null)
+                    pendingUnverifiedUser.SendEmailVerificationAsync();
+                CloseUnverifiedPanel();
+            });
+
+        if (closeUnverifiedBtn != null)
+            closeUnverifiedBtn.onClick.AddListener(CloseUnverifiedPanel);
+
         long lockEndUnix = long.Parse(PlayerPrefs.GetString("LoginLockEndUnix", "0"));
         int secondsLeft = (int)(lockEndUnix - System.DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         if (secondsLeft > 0)
@@ -60,8 +82,7 @@ public class LoginManager : MonoBehaviour
         FirebaseUser user = auth.CurrentUser;
         if (user == null || !user.IsEmailVerified) return;
 
-        SetStatus("Logging in...", Color.blue);
-        LoginBtn.interactable = false;
+        ShowLoggingIn(true);
 
         firestore.Collection("users").Document(user.UserId)
             .GetSnapshotAsync()
@@ -70,8 +91,7 @@ public class LoginManager : MonoBehaviour
                 if (!task.IsCompleted || !task.Result.Exists)
                 {
                     auth.SignOut();
-                    LoginBtn.interactable = true;
-                    SetStatus("", Color.white);
+                    ShowLoggingIn(false);
                     return;
                 }
 
@@ -84,6 +104,10 @@ public class LoginManager : MonoBehaviour
                 {
                     SceneManager.LoadScene("LoadingToTeacher");
                 }
+                else if (role == "admin")
+                {
+                    SceneManager.LoadScene("LoadingToAdmin");
+                }
                 else if (role == "student")
                 {
                     GlobalUserData.UserId = user.UserId;
@@ -93,8 +117,7 @@ public class LoginManager : MonoBehaviour
                 else
                 {
                     auth.SignOut();
-                    LoginBtn.interactable = true;
-                    SetStatus("", Color.white);
+                    ShowLoggingIn(false);
                 }
             });
     }
@@ -112,7 +135,7 @@ public class LoginManager : MonoBehaviour
             return;
         }
 
-        SetStatus("Logging in...", Color.blue);
+        ShowLoggingIn(true);
 
         auth.SignInWithEmailAndPasswordAsync(email, password)
             .ContinueWithOnMainThread(task =>
@@ -120,6 +143,7 @@ public class LoginManager : MonoBehaviour
                 if (task.IsFaulted || task.IsCanceled)
                 {
                     failedAttempts++;
+                    ShowLoggingIn(false);
 
                     if (failedAttempts >= 3)
                     {
@@ -138,8 +162,15 @@ public class LoginManager : MonoBehaviour
 
                 if (!user.IsEmailVerified)
                 {
-                    auth.SignOut();
-                    SetStatus("Please verify your email first.", Color.red);
+                    ShowLoggingIn(false);
+                    pendingUnverifiedUser = user;
+
+                    firestore.Collection("users").Document(user.UserId).GetSnapshotAsync()
+                        .ContinueWithOnMainThread(checkTask =>
+                        {
+                            bool existsInDB = checkTask.IsCompletedSuccessfully && checkTask.Result.Exists;
+                            ShowUnverifiedPanel(existsInDB);
+                        });
                     return;
                 }
 
@@ -161,6 +192,11 @@ public class LoginManager : MonoBehaviour
                             SetStatus("Login successful!", Color.green);
                             SceneManager.LoadScene("LoadingToTeacher");
                         }
+                        else if (role == "admin")
+                        {
+                            SetStatus("Login successful!", Color.green);
+                            SceneManager.LoadScene("LoadingToAdmin");
+                        }
                         else if (role == "student")
                         {
                             GlobalUserData.UserId = user.UserId;
@@ -171,10 +207,32 @@ public class LoginManager : MonoBehaviour
                         else
                         {
                             auth.SignOut();
+                            ShowLoggingIn(false);
                             SetStatus("Unauthorized role.", Color.red);
                         }
                     });
             });
+    }
+
+    void ShowUnverifiedPanel(bool showResend)
+    {
+        if (LoginBox != null)        LoginBox.SetActive(false);
+        if (unverifiedPanel != null) unverifiedPanel.SetActive(true);
+        if (resendEmailBtn != null)  resendEmailBtn.gameObject.SetActive(showResend);
+    }
+
+    void CloseUnverifiedPanel()
+    {
+        auth.SignOut();
+        pendingUnverifiedUser = null;
+        if (unverifiedPanel != null) unverifiedPanel.SetActive(false);
+        if (LoginBox != null)        LoginBox.SetActive(true);
+    }
+
+    void ShowLoggingIn(bool show)
+    {
+        if (LoggingInPanel != null) LoggingInPanel.SetActive(show);
+        LoginBtn.interactable = !show;
     }
 
     void SetStatus(string message, Color color)

@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level1QuestManager : MonoBehaviour
 {
@@ -64,8 +67,15 @@ public class Level1QuestManager : MonoBehaviour
     [Header("Newspaper Sound")]
     public AudioClip newspaperSound;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text trustCountText;
+    public TMP_Text doubtCountText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private int currentIndex = 0;
+    private int trustCount = 0, doubtCount = 0;
 
     private enum QuestState { Newspaper, Dialogue, Choices, Response, Lesson }
     private QuestState state;
@@ -95,7 +105,6 @@ public class Level1QuestManager : MonoBehaviour
         questPanel.SetActive(true);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        // Show all newspapers at start (stacked look)
         foreach (NewspaperEntry entry in newspapers)
             if (entry.newspaper != null) entry.newspaper.SetActive(true);
 
@@ -120,21 +129,10 @@ public class Level1QuestManager : MonoBehaviour
     {
         switch (state)
         {
-            case QuestState.Newspaper:
-                ShowDialogue();
-                break;
-
-            case QuestState.Dialogue:
-                ShowChoices();
-                break;
-
-            case QuestState.Response:
-                ShowLesson();
-                break;
-
-            case QuestState.Lesson:
-                NextNewspaper();
-                break;
+            case QuestState.Newspaper: ShowDialogue();    break;
+            case QuestState.Dialogue:  ShowChoices();     break;
+            case QuestState.Response:  ShowLesson();      break;
+            case QuestState.Lesson:    NextNewspaper();   break;
         }
     }
 
@@ -165,6 +163,7 @@ public class Level1QuestManager : MonoBehaviour
 
     void OnChoice(bool believed)
     {
+        if (believed) trustCount++; else doubtCount++;
         state = QuestState.Response;
         choicesPanel.SetActive(false);
         var entry = newspapers[currentIndex];
@@ -201,7 +200,6 @@ public class Level1QuestManager : MonoBehaviour
 
     void NextNewspaper()
     {
-        // Hide the current newspaper (remove from stack)
         if (newspapers[currentIndex].newspaper != null)
             newspapers[currentIndex].newspaper.SetActive(false);
 
@@ -218,10 +216,59 @@ public class Level1QuestManager : MonoBehaviour
 
     void EndQuest()
     {
+        SaveLevelData();
+        audioSource.Stop();
         questPanel.SetActive(false);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+        ShowScorePanel();
+    }
 
-        if (levelCompleteManager != null)
-            levelCompleteManager.OnLevelComplete();
+    void ShowScorePanel()
+    {
+        if (trustCountText != null) trustCountText.text = trustCount.ToString();
+        if (doubtCountText != null) doubtCountText.text = doubtCount.ToString();
+
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(ShowEndPanel);
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (tapAnywhereScoreBtn != null) tapAnywhereScoreBtn.gameObject.SetActive(false);
+        if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
+    }
+
+    void SaveLevelData()
+    {
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsCompletedSuccessfully) return;
+            if (task.Result.TryGetValue("level1_data", out object _)) return;
+
+            userRef.UpdateAsync("level1_data", new Dictionary<string, object>
+            {
+                { "trust", trustCount },
+                { "doubt", doubtCount }
+            });
+        });
     }
 }

@@ -45,12 +45,14 @@ public class UserManager : MonoBehaviour
     public TMP_InputField studentLastNameField;
     public TMP_InputField studentFirstNameField;
     public TMP_InputField studentMiddleNameField;
+    public TMP_InputField studentLrnField;
     public Button studentGenerateBtn;
     public Button studentSaveBtn;
     public TextMeshProUGUI studentEmailValidation;
     public TextMeshProUGUI studentPasswordValidation;
     public TextMeshProUGUI studentLastNameValidation;
     public TextMeshProUGUI studentFirstNameValidation;
+    public TextMeshProUGUI studentLrnValidation;
 
     [Header("Add Teacher Panel")]
     public GameObject addTeacherContainer;
@@ -71,12 +73,16 @@ public class UserManager : MonoBehaviour
     public TMP_InputField editFirstNameField;
     public TMP_InputField editMiddleNameField;
     public TMP_InputField editLastNameField;
+    public TMP_InputField editLrnField;
+    public TextMeshProUGUI editLrnLabel;
     public Button editSaveBtn;
     public Button editCancelBtn;
     public TextMeshProUGUI editFirstNameValidation;
     public TextMeshProUGUI editLastNameValidation;
+    public TextMeshProUGUI editLrnValidation;
 
     private string editingDocID;
+    private string editingRole;
 
     [Header("Open Panel Buttons")]
     public Button addStudentBtn;
@@ -87,7 +93,7 @@ public class UserManager : MonoBehaviour
     public Button openSearchBtn;
     public TMP_InputField searchField;
     public Button searchBtn;
-    public Button closeSearchBtn; 
+    public Button closeSearchBtn;
 
     [Header("Archive Panel")]
     public GameObject archiveValidation;
@@ -134,7 +140,7 @@ public class UserManager : MonoBehaviour
 
         if (teacherSaveBtn != null)
             teacherSaveBtn.onClick.AddListener(AddTeacher);
-        
+
 
         if (openSearchBtn != null)
     openSearchBtn.onClick.AddListener(() => SearchPanel.SetActive(true));
@@ -142,7 +148,7 @@ public class UserManager : MonoBehaviour
         if (searchBtn != null)
     searchBtn.onClick.AddListener(SearchStudent);
         ListenToStudents();
-        
+
 
         ListenToTeachers();
 
@@ -160,7 +166,7 @@ public class UserManager : MonoBehaviour
             userFilterDropdown.onValueChanged.AddListener(OnFilterChanged);
 
         if (teacherContainer != null) teacherContainer.SetActive(false);
-        
+
         if (refreshBtn != null)
             refreshBtn.onClick.AddListener(RefreshUsers);
 
@@ -188,7 +194,7 @@ if (archiveContinueBtn != null)
             });
 
     }
-    
+
     void OnFilterChanged(int index)
     {
         // 0 = Students, 1 = Teachers
@@ -196,7 +202,7 @@ if (archiveContinueBtn != null)
         if (studentContainer != null) studentContainer.SetActive(showStudents);
         if (teacherContainer != null) teacherContainer.SetActive(!showStudents);
     }
-     
+
      void RefreshUsers()
     {
         ClearTable(studentTableContent);
@@ -206,7 +212,7 @@ if (archiveContinueBtn != null)
     }
 
 
-    
+
     // ─────────────────────────────────────────────
     // REAL-TIME STUDENT LISTENER
     // ─────────────────────────────────────────────
@@ -285,7 +291,7 @@ if (archiveContinueBtn != null)
             string capturedFirst = firstName;
             string capturedMiddle = middleName;
             string capturedLast = lastName;
-            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast));
+            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast, "teacher", ""));
         }
 
         Button archiveBtn = panel.Find("ArchiveBtn")?.GetComponent<Button>();
@@ -307,6 +313,7 @@ if (archiveContinueBtn != null)
         string middleName = data.ContainsKey("middle_name") ? data["middle_name"].ToString() : "";
         string lastName   = data.ContainsKey("last_name")   ? data["last_name"].ToString()   : "";
         string email      = data.ContainsKey("email")       ? data["email"].ToString()       : "";
+        string lrn        = data.ContainsKey("lrn")         ? data["lrn"].ToString()         : "";
 
         string middleInitial = !string.IsNullOrEmpty(middleName) ? $" {middleName[0]}." : "";
         string displayName = $"{lastName}, {firstName}{middleInitial}".Trim();
@@ -314,6 +321,7 @@ if (archiveContinueBtn != null)
         SetText(panel, "NumberText", index.ToString());
         SetText(panel, "NameText", displayName);
         SetText(panel, "EmailText", email);
+        SetText(panel, "LRN", lrn);
 
         Button editBtn = panel.Find("EditBtn")?.GetComponent<Button>();
         if (editBtn != null)
@@ -322,7 +330,8 @@ if (archiveContinueBtn != null)
             string capturedFirst = firstName;
             string capturedMiddle = middleName;
             string capturedLast = lastName;
-            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast));
+            string capturedLrn = lrn;
+            editBtn.onClick.AddListener(() => OpenEditPanel(capturedID, capturedFirst, capturedMiddle, capturedLast, "student", capturedLrn));
         }
 
         Button archiveBtn = panel.Find("ArchiveBtn")?.GetComponent<Button>();
@@ -333,15 +342,27 @@ if (archiveContinueBtn != null)
         }
     }
 
-    void OpenEditPanel(string docID, string firstName, string middleName, string lastName)
+    void OpenEditPanel(string docID, string firstName, string middleName, string lastName, string role, string lrn)
     {
         editingDocID = docID;
+        editingRole = role;
+
         editFirstNameField.text = firstName;
         editMiddleNameField.text = middleName;
         editLastNameField.text = lastName;
 
         if (editFirstNameValidation != null) editFirstNameValidation.text = "";
         if (editLastNameValidation != null) editLastNameValidation.text = "";
+        if (editLrnValidation != null) editLrnValidation.text = "";
+
+        bool isStudent = role == "student";
+        if (editLrnField != null)
+        {
+            editLrnField.gameObject.SetActive(isStudent);
+            editLrnField.text = isStudent ? lrn : "";
+        }
+        if (editLrnValidation != null) editLrnValidation.gameObject.SetActive(isStudent);
+        if (editLrnLabel != null) editLrnLabel.gameObject.SetActive(isStudent);
 
         if (darkOverlay != null) darkOverlay.SetActive(true);
         editUserContainer.SetActive(true);
@@ -352,10 +373,12 @@ if (archiveContinueBtn != null)
         string firstName  = editFirstNameField.text.Trim();
         string middleName = editMiddleNameField.text.Trim();
         string lastName   = editLastNameField.text.Trim();
+        string lrn        = editLrnField != null ? editLrnField.text.Trim() : "";
 
         bool valid = true;
         if (editFirstNameValidation != null) editFirstNameValidation.text = "";
         if (editLastNameValidation != null)  editLastNameValidation.text  = "";
+        if (editLrnValidation != null)       editLrnValidation.text       = "";
 
         if (string.IsNullOrEmpty(firstName))
         {
@@ -367,17 +390,62 @@ if (archiveContinueBtn != null)
             if (editLastNameValidation != null) editLastNameValidation.text = "Last name is required.";
             valid = false;
         }
+
+        if (editingRole == "student")
+        {
+            if (string.IsNullOrEmpty(lrn))
+            {
+                if (editLrnValidation != null) editLrnValidation.text = "LRN is required.";
+                valid = false;
+            }
+            else if (!Regex.IsMatch(lrn, @"^\d{12}$"))
+            {
+                if (editLrnValidation != null) editLrnValidation.text = "LRN must be exactly 12 digits.";
+                valid = false;
+            }
+        }
+
         if (!valid) return;
 
         if (editSaveBtn != null)   editSaveBtn.interactable = false;
         if (loadingPanel != null)  loadingPanel.SetActive(true);
 
+        if (editingRole == "student")
+        {
+            db.Collection("users").WhereEqualTo("lrn", long.Parse(lrn)).GetSnapshotAsync()
+                .ContinueWithOnMainThread(lrnCheck =>
+                {
+                    bool duplicate = lrnCheck.IsCompletedSuccessfully &&
+                        lrnCheck.Result.Documents.Any(doc => doc.Id != editingDocID);
+
+                    if (duplicate)
+                    {
+                        if (editLrnValidation != null) editLrnValidation.text = "LRN already exists.";
+                        if (editSaveBtn != null)   editSaveBtn.interactable = true;
+                        if (loadingPanel != null)  loadingPanel.SetActive(false);
+                        return;
+                    }
+
+                    DoUpdateUser(firstName, middleName, lastName, lrn);
+                });
+        }
+        else
+        {
+            DoUpdateUser(firstName, middleName, lastName, "");
+        }
+    }
+
+    void DoUpdateUser(string firstName, string middleName, string lastName, string lrn)
+    {
         Dictionary<string, object> updates = new Dictionary<string, object>
         {
             { "first_name", firstName },
             { "middle_name", middleName },
             { "last_name", lastName }
         };
+
+        if (editingRole == "student" && !string.IsNullOrEmpty(lrn))
+            updates["lrn"] = long.Parse(lrn);
 
         db.Collection("users").Document(editingDocID).UpdateAsync(updates)
             .ContinueWithOnMainThread(task =>
@@ -397,7 +465,7 @@ if (archiveContinueBtn != null)
                 }
             });
     }
-    
+
 
     void OpenArchivePanel(string docID)
     {
@@ -469,13 +537,25 @@ if (archiveContinueBtn != null)
         string firstName  = studentFirstNameField.text.Trim();
         string middleName = studentMiddleNameField.text.Trim();
         string lastName   = studentLastNameField.text.Trim();
+        string lrn        = studentLrnField != null ? studentLrnField.text.Trim() : "";
 
-        if (!ValidateStudentFields(email, password, firstName, lastName)) return;
+        if (!ValidateStudentFields(email, password, firstName, lastName, lrn)) return;
 
         if (studentSaveBtn != null) studentSaveBtn.interactable = false;
         if (loadingPanel != null)   loadingPanel.SetActive(true);
 
-        auth.CreateUserWithEmailAndPasswordAsync(email, password)
+        db.Collection("users").WhereEqualTo("lrn", long.Parse(lrn)).GetSnapshotAsync()
+            .ContinueWithOnMainThread(lrnCheck =>
+            {
+                if (lrnCheck.IsCompletedSuccessfully && lrnCheck.Result.Count > 0)
+                {
+                    if (studentLrnValidation != null) studentLrnValidation.text = "LRN already exists.";
+                    if (studentSaveBtn != null) studentSaveBtn.interactable = true;
+                    if (loadingPanel != null)   loadingPanel.SetActive(false);
+                    return;
+                }
+
+                auth.CreateUserWithEmailAndPasswordAsync(email, password)
             .ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted || task.IsCanceled)
@@ -508,6 +588,7 @@ if (archiveContinueBtn != null)
                     { "last_name", lastName },
                     { "email", email },
                     { "role", "student" },
+                    { "lrn", long.Parse(lrn) },
                     { "createdAt", Timestamp.GetCurrentTimestamp() }
                 };
 
@@ -530,6 +611,7 @@ if (archiveContinueBtn != null)
                             StartCoroutine(ShowFailedPanel());
                         }
                     });
+            });
             });
     }
 
@@ -612,7 +694,7 @@ if (archiveContinueBtn != null)
     // VALIDATION
     // ─────────────────────────────────────────────
 
-    bool ValidateStudentFields(string email, string password, string firstName, string lastName)
+    bool ValidateStudentFields(string email, string password, string firstName, string lastName, string lrn)
     {
         bool valid = true;
 
@@ -654,6 +736,17 @@ if (archiveContinueBtn != null)
         else if (!password.Any(char.IsDigit))
         {
             studentPasswordValidation.text = "Password must contain at least one number.";
+            valid = false;
+        }
+
+        if (string.IsNullOrEmpty(lrn))
+        {
+            if (studentLrnValidation != null) studentLrnValidation.text = "LRN is required.";
+            valid = false;
+        }
+        else if (!Regex.IsMatch(lrn, @"^\d{12}$"))
+        {
+            if (studentLrnValidation != null) studentLrnValidation.text = "LRN must be exactly 12 digits.";
             valid = false;
         }
 
@@ -714,6 +807,7 @@ if (archiveContinueBtn != null)
         if (studentLastNameValidation != null)   studentLastNameValidation.text   = "";
         if (studentEmailValidation != null)      studentEmailValidation.text      = "";
         if (studentPasswordValidation != null)   studentPasswordValidation.text   = "";
+        if (studentLrnValidation != null)        studentLrnValidation.text        = "";
     }
 
     void ClearTeacherValidations()
@@ -743,7 +837,11 @@ if (archiveContinueBtn != null)
             mail.Body = $@"
 <html>
 <body style='font-family:Segoe UI, sans-serif; background-color:#1a1a2e; color:#e0e0e0; padding:20px;'>
-    <h2 style='color:#4ecca3;'>You're Invited to Tanikala at Laya! 🎉</h2>
+    <div style='text-align:center; margin-bottom:20px;'>
+        <img src='https://firebasestorage.googleapis.com/v0/b/tanikala-game.firebasestorage.app/o/TanikalaLogo.png?alt=media&token=234fa920-edb0-4825-8a86-dcce2cf124cf'
+             alt='Tanikala at Laya' style='width:120px; height:120px; border-radius:12px;' />
+    </div>
+    <h2 style='color:#4ecca3;'>You're Invited to Tanikala at Laya!</h2>
     <p>Hello <b>{role}</b>,</p>
     <p>You've been invited to join <b>Tanikala at Laya</b>! We're excited to have you on board.
     Here are your login credentials to get started:</p>
@@ -824,6 +922,7 @@ if (archiveContinueBtn != null)
         studentFirstNameField.text  = "";
         studentMiddleNameField.text = "";
         studentLastNameField.text   = "";
+        if (studentLrnField != null) studentLrnField.text = "";
     }
 
     void ClearTeacherForm()

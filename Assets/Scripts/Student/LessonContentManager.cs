@@ -42,14 +42,15 @@ public class LessonContentManager : MonoBehaviour
 
             foreach (var doc in task.Result.Documents)
             {
-                string name = doc.ContainsField("name")   ? doc.GetValue<string>("name")   : "";
-                string url  = doc.ContainsField("pdfUrl") ? doc.GetValue<string>("pdfUrl") : "";
+                string name  = doc.ContainsField("name")   ? doc.GetValue<string>("name")   : "";
+                string url   = doc.ContainsField("pdfUrl") ? doc.GetValue<string>("pdfUrl") : "";
+                int    level = doc.ContainsField("level")  ? System.Convert.ToInt32(doc.GetValue<object>("level")) : 0;
 
                 GameObject row = Instantiate(rowPrefab, tableContent);
                 Transform panel = row.transform.Find("Panel") ?? row.transform;
 
-                SetText(panel, "NameText",   name);
-                SetText(panel, "StatusText", !string.IsNullOrEmpty(url) ? "Uploaded" : "No PDF");
+                SetText(panel, "NameText", name);
+                SetText(panel, "LvlText",  level > 0 ? "Level " + level : "—");
 
                 Button viewBtn = panel.Find("ViewBtn")?.GetComponent<Button>();
                 if (viewBtn != null)

@@ -1,8 +1,11 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
 
 public class Level8QuestManager : MonoBehaviour
 {
@@ -70,8 +73,15 @@ public class Level8QuestManager : MonoBehaviour
     [Header("Stamp Sound")]
     public AudioClip stampSound;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text approveCountText;
+    public TMP_Text holdCountText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private int currentIndex = 0;
+    private int approveCount = 0, holdCount = 0;
 
     private enum QuestState { Document, InnerMonologue, Choices, PostChoice, Lesson }
     private QuestState state;
@@ -154,6 +164,7 @@ public class Level8QuestManager : MonoBehaviour
 
     void OnChoice(bool approved)
     {
+        if (approved) approveCount++; else holdCount++;
         choicesPanel.SetActive(false);
         var entry = documents[currentIndex];
 
@@ -227,11 +238,39 @@ public class Level8QuestManager : MonoBehaviour
 
     void EndQuest()
     {
+        SaveLevelData();
         audioSource.Stop();
         questPanel.SetActive(false);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+        ShowScorePanel();
+    }
 
-        // Disable all interactables
+    void ShowScorePanel()
+    {
+        if (approveCountText != null) approveCountText.text = approveCount.ToString();
+        if (holdCountText != null) holdCountText.text = holdCount.ToString();
+
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(ShowEndPanel);
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (tapAnywhereScoreBtn != null) tapAnywhereScoreBtn.gameObject.SetActive(false);
+
         foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
         {
             if (obj.questionMark != null) obj.questionMark.SetActive(false);
@@ -269,5 +308,26 @@ public class Level8QuestManager : MonoBehaviour
         }
 
         if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
+    }
+
+    void SaveLevelData()
+    {
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsCompletedSuccessfully) return;
+            if (task.Result.TryGetValue("level8_data", out object _)) return;
+
+            userRef.UpdateAsync("level8_data", new Dictionary<string, object>
+            {
+                { "approve", approveCount },
+                { "hold", holdCount }
+            });
+        });
     }
 }

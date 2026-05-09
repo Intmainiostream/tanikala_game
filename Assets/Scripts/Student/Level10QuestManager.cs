@@ -74,6 +74,12 @@ public class Level10QuestManager : MonoBehaviour
     [Header("Tap Anywhere (shown after answer)")]
     public Button tapAnywhereBtn;
 
+    [Header("Score Panel (shown after quiz, before end dialogue)")]
+    public GameObject scorePanel;
+    public TMP_Text firstScoreText;
+    public TMP_Text latestScoreText;
+    public Button tapAnywhereScoreBtn;
+
     [Header("End Dialogue (PanelSequence shown after all questions)")]
     public PanelSequence endPanelSequence;
 
@@ -292,28 +298,59 @@ public class Level10QuestManager : MonoBehaviour
         StopTimer();
         questPanel.SetActive(false);
 
-        if (huds.Length > 1 && huds[1] != null)
-            huds[1].SetActive(true);
-
-        SaveScoreToFirestore(() =>
+        SaveScoreToFirestore(firstScore =>
         {
-            if (endPanelSequence != null)
-            {
-                endPanelSequence.gameObject.SetActive(true);
-                endPanelSequence.onComplete = OnLevelComplete;
-            }
-            else
-            {
-                OnLevelComplete();
-            }
+            ShowScorePanel(firstScore);
         });
     }
 
-    void SaveScoreToFirestore(System.Action onDone)
+    void ShowScorePanel(int firstScore)
+    {
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (firstScoreText != null)  firstScoreText.text  = firstScore.ToString();
+            if (latestScoreText != null) latestScoreText.text = score.ToString();
+
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(() =>
+                {
+                    tapAnywhereScoreBtn.gameObject.SetActive(false);
+                    scorePanel.SetActive(false);
+                    ShowEndPanel();
+                });
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (huds.Length > 1 && huds[1] != null)
+            huds[1].SetActive(true);
+
+        if (endPanelSequence != null)
+        {
+            endPanelSequence.gameObject.SetActive(true);
+            endPanelSequence.onComplete = OnLevelComplete;
+        }
+        else
+        {
+            OnLevelComplete();
+        }
+    }
+
+    void SaveScoreToFirestore(System.Action<int> onDone)
     {
         if (GlobalUserData.IsGuest || string.IsNullOrEmpty(GlobalUserData.UserId))
         {
-            onDone?.Invoke();
+            onDone?.Invoke(score);
             return;
         }
 
@@ -325,7 +362,8 @@ public class Level10QuestManager : MonoBehaviour
             {
                 if (!task.IsFaulted && task.Result.Exists && task.Result.ToDictionary().ContainsKey("quiz_score"))
                 {
-                    onDone?.Invoke();
+                    int existingScore = System.Convert.ToInt32(task.Result.GetValue<long>("quiz_score"));
+                    onDone?.Invoke(existingScore);
                     return;
                 }
 
@@ -341,7 +379,7 @@ public class Level10QuestManager : MonoBehaviour
                     {
                         if (updateTask.IsFaulted)
                             Debug.LogError("Failed to save quiz score: " + updateTask.Exception);
-                        onDone?.Invoke();
+                        onDone?.Invoke(score);
                     });
             });
     }

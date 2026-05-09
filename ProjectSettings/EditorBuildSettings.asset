@@ -12,8 +12,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Routes/LoadingToTeacher.unity
     guid: e1dfac33c9973c84f92daf48b0201829
   - enabled: 1
+    path: Assets/Scenes/Routes/LoadingToAdmin.unity
+    guid: 2c75ca74577028a4999c509491b06a3f
+  - enabled: 1
     path: Assets/Scenes/Teacher/TeacherScene.unity
     guid: 9f4d39eb6fbe50f47a8d7bf76fb7186d
+  - enabled: 0
+    path: Assets/Scenes/Teacher/AdminScene.unity
+    guid: 2aedcc591f403124f9adb99d0ac20904
   - enabled: 1
     path: Assets/Scenes/Routes/LoadingToMainMenu.unity
     guid: 55e05d563f2e9ea4eb7d73b536fd3575

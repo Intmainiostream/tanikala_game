@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Playables;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level4QuestManager : MonoBehaviour
 {
@@ -27,7 +30,7 @@ public class Level4QuestManager : MonoBehaviour
     public Button tapAnywhereBtn;
 
     [Header("HUDs")]
-    public GameObject[] huds; // huds[0] = controller, huds[1] = interact btn
+    public GameObject[] huds;
 
     [Header("Celia - reveals benches when her dialogue finishes")]
     public PanelSequence celiaPanelSequence;
@@ -36,14 +39,21 @@ public class Level4QuestManager : MonoBehaviour
 
     [Header("Cutscene")]
     public PlayableDirector cutscene;
-    public GameObject cutscenePanel; // parent of all the activation panels
+    public GameObject cutscenePanel;
 
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text firstRecordText;
+    public TMP_Text currentRecordText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private bool[] flyersFound;
     private int currentFlyerIndex = -1;
+    private float startTime = -1f;
 
     void Start()
     {
@@ -55,20 +65,18 @@ public class Level4QuestManager : MonoBehaviour
         questPanel.SetActive(false);
         tapAnywhereBtn.onClick.AddListener(OnTap);
 
-        // Hide benches until Celia is talked to
         if (bench1Object != null) bench1Object.SetActive(false);
         if (bench2Object != null) bench2Object.SetActive(false);
     }
 
-    // Called by InteractableObject after Celia's PanelSequence ends
     public void StartQuest()
     {
+        startTime = Time.time;
         if (bench1Object != null) bench1Object.SetActive(true);
         if (bench2Object != null) bench2Object.SetActive(true);
         if (huds.Length > 1 && huds[1] != null) huds[1].SetActive(true);
     }
 
-    // Called by InteractableObject on the bench (flyerIndex 0 or 1)
     public void OnFlyerInteracted(int index)
     {
         if (index < 0 || index >= flyers.Length) return;
@@ -79,7 +87,6 @@ public class Level4QuestManager : MonoBehaviour
 
         questPanel.SetActive(true);
 
-        // Show only this flyer image
         for (int i = 0; i < flyers.Length; i++)
             if (flyers[i].flyerImage != null)
                 flyers[i].flyerImage.SetActive(i == index);
@@ -116,7 +123,6 @@ public class Level4QuestManager : MonoBehaviour
         {
             flyersFound[currentFlyerIndex] = true;
 
-            // Hide the bench so the player thinks they need to find another one
             if (currentFlyerIndex == 0 && bench1Object != null) bench1Object.SetActive(false);
             else if (currentFlyerIndex == 1 && bench2Object != null) bench2Object.SetActive(false);
         }
@@ -131,7 +137,6 @@ public class Level4QuestManager : MonoBehaviour
     {
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        // Disable all interactables so triggers stop firing
         foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
         {
             if (obj.questionMark != null) obj.questionMark.SetActive(false);
@@ -140,6 +145,58 @@ public class Level4QuestManager : MonoBehaviour
             if (col != null) col.enabled = false;
         }
 
+        SaveAndShowScore();
+    }
+
+    void SaveAndShowScore()
+    {
+        float elapsed = startTime >= 0f ? Time.time - startTime : 0f;
+
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) { ProceedToEnd(); return; }
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            float firstRecord = elapsed;
+
+            if (task.IsCompletedSuccessfully)
+            {
+                if (task.Result.TryGetValue("level4_data", out object raw) && raw is Dictionary<string, object> d && d.ContainsKey("time"))
+                    firstRecord = System.Convert.ToSingle(d["time"]);
+                else
+                    userRef.UpdateAsync("level4_data", new Dictionary<string, object> { { "time", elapsed } });
+            }
+
+            if (firstRecordText != null)  firstRecordText.text  = $"{Mathf.RoundToInt(firstRecord)}s";
+            if (currentRecordText != null) currentRecordText.text = $"{Mathf.RoundToInt(elapsed)}s";
+
+            if (scorePanel != null)
+            {
+                scorePanel.SetActive(true);
+                if (tapAnywhereScoreBtn != null)
+                {
+                    tapAnywhereScoreBtn.gameObject.SetActive(true);
+                    tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                    tapAnywhereScoreBtn.onClick.AddListener(() =>
+                    {
+                        tapAnywhereScoreBtn.gameObject.SetActive(false);
+                        scorePanel.SetActive(false);
+                        ProceedToEnd();
+                    });
+                }
+            }
+            else
+            {
+                ProceedToEnd();
+            }
+        });
+    }
+
+    void ProceedToEnd()
+    {
         if (cutscene != null)
         {
             if (cutscenePanel != null) cutscenePanel.SetActive(true);
@@ -157,5 +214,4 @@ public class Level4QuestManager : MonoBehaviour
         cutscene.stopped -= OnCutsceneFinished;
         if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
     }
-
 }

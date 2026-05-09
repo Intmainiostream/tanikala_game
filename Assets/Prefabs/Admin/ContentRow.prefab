@@ -188,7 +188,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: UPLOAD
+  m_text: UPDATE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ea3625113466dc449834f1f2344b658d, type: 2}
   m_sharedMaterial: {fileID: -8878121259087072748, guid: ea3625113466dc449834f1f2344b658d, type: 2}
@@ -501,7 +501,7 @@ GameObject:
   - component: {fileID: 5833255811830446809}
   - component: {fileID: 5833255811830446810}
   m_Layer: 5
-  m_Name: StatusText
+  m_Name: LvlText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -555,7 +555,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: UPLOADED
+  m_text: LEVEL 10
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5776f38ea62e2c14d96731ceda098919, type: 2}
   m_sharedMaterial: {fileID: -7543868984070663142, guid: 5776f38ea62e2c14d96731ceda098919, type: 2}

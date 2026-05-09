@@ -77,22 +77,108 @@ public class RecordManager : MonoBehaviour
         string mi = !string.IsNullOrEmpty(middle) ? $" {middle[0]}." : "";
         string displayName = $"{last}, {first}{mi}".Trim();
 
-        int highestFinished = 0;
-        if (data.ContainsKey("level_progress") && data["level_progress"] is Dictionary<string, object> progress)
+        SetText(panel, "NameText", displayName);
+
+        // Find the dropdown
+        Transform ddTransform = panel.Find("LvlDropdown");
+        TMP_Dropdown dropdown = ddTransform != null ? ddTransform.GetComponent<TMP_Dropdown>() : null;
+
+        if (dropdown == null) return;
+
+        // Populate Level 1–10
+        dropdown.ClearOptions();
+        var options = new List<string>();
+        for (int i = 1; i <= 10; i++) options.Add($"Level {i}");
+        dropdown.AddOptions(options);
+
+        // Default to first completed level, or Level 1
+        int defaultIdx = 0;
+        if (data.ContainsKey("level_progress") && data["level_progress"] is Dictionary<string, object> prog)
         {
             for (int i = 1; i <= 10; i++)
             {
-                string key = i.ToString();
-                if (progress.ContainsKey(key) && progress[key].ToString() == "finished")
-                    highestFinished = i;
+                if (prog.ContainsKey(i.ToString()) && prog[i.ToString()].ToString() == "finished")
+                {
+                    defaultIdx = i - 1;
+                    break;
+                }
             }
         }
-        string progressText = highestFinished > 0 ? $"Level {highestFinished}/10" : "Not Started";
-        string scoreText = data.ContainsKey("quiz_score") ? data["quiz_score"].ToString() : "—";
 
-        SetText(panel, "NameText",     displayName);
-        SetText(panel, "ProgressText", progressText);
-        SetText(panel, "ScoreText",    scoreText);
+        dropdown.value = defaultIdx;
+        dropdown.RefreshShownValue();
+
+        // Show initial score
+        var capturedData = data;
+        UpdateScore(panel, dropdown.value + 1, capturedData);
+
+        // Update score when dropdown changes
+        dropdown.onValueChanged.AddListener(idx => UpdateScore(panel, idx + 1, capturedData));
+    }
+
+    void UpdateScore(Transform panel, int lvl, Dictionary<string, object> data)
+    {
+        // Check if level is finished first
+        bool finished = false;
+        if (data.ContainsKey("level_progress") && data["level_progress"] is Dictionary<string, object> prog)
+            finished = prog.ContainsKey(lvl.ToString()) && prog[lvl.ToString()].ToString() == "finished";
+
+        string score = finished ? GetScoreText(lvl, data) : "Not Finished";
+        SetText(panel, "ScoreText", score);
+    }
+
+    string GetScoreText(int lvl, Dictionary<string, object> data)
+    {
+        string key = $"level{lvl}_data";
+
+        switch (lvl)
+        {
+            case 1:
+            case 7:
+                if (data.ContainsKey(key) && data[key] is Dictionary<string, object> td)
+                {
+                    int trust = td.ContainsKey("trust") ? System.Convert.ToInt32(td["trust"]) : 0;
+                    int doubt = td.ContainsKey("doubt") ? System.Convert.ToInt32(td["doubt"]) : 0;
+                    return $"{trust} Trust - {doubt} Doubt";
+                }
+                return "—";
+
+            case 2:
+            case 5:
+                if (data.ContainsKey(key) && data[key] is Dictionary<string, object> ad)
+                {
+                    int approve    = ad.ContainsKey("approve")    ? System.Convert.ToInt32(ad["approve"])    : 0;
+                    int notApprove = ad.ContainsKey("notApprove") ? System.Convert.ToInt32(ad["notApprove"]) : 0;
+                    return $"{approve} Approve - {notApprove} NotApprove";
+                }
+                return "—";
+
+            case 3:
+            case 4:
+            case 6:
+            case 9:
+                if (data.ContainsKey(key) && data[key] is Dictionary<string, object> timd)
+                {
+                    float time = timd.ContainsKey("time") ? System.Convert.ToSingle(timd["time"]) : 0f;
+                    return $"{Mathf.RoundToInt(time)}s";
+                }
+                return "—";
+
+            case 8:
+                if (data.ContainsKey(key) && data[key] is Dictionary<string, object> hd)
+                {
+                    int approve = hd.ContainsKey("approve") ? System.Convert.ToInt32(hd["approve"]) : 0;
+                    int hold    = hd.ContainsKey("hold")    ? System.Convert.ToInt32(hd["hold"])    : 0;
+                    return $"{approve} Approve - {hold} Hold";
+                }
+                return "—";
+
+            case 10:
+                return data.ContainsKey("quiz_score") ? $"{data["quiz_score"]}pts" : "—";
+
+            default:
+                return "—";
+        }
     }
 
     void SearchRecords()

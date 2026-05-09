@@ -1,5 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Playables;
+using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level6QuestManager : MonoBehaviour
 {
@@ -20,14 +25,21 @@ public class Level6QuestManager : MonoBehaviour
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text firstRecordText;
+    public TMP_Text currentRecordText;
+    public Button tapAnywhereScoreBtn;
+
     private bool journalistDone = false;
+    private float startTime;
 
     void Start()
     {
+        startTime = Time.time;
         if (evidenceObject != null) evidenceObject.SetActive(false);
     }
 
-    // Called by Journalist's InteractableObject (assign questManager6 on Journalist NPC)
     public void StartQuest()
     {
         if (!journalistDone)
@@ -37,7 +49,6 @@ public class Level6QuestManager : MonoBehaviour
             return;
         }
 
-        // Called by evidence InteractableObject after its PanelSequence ends
         OnEvidenceInteracted();
     }
 
@@ -45,7 +56,6 @@ public class Level6QuestManager : MonoBehaviour
     {
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
-        // Disable all interactables so nothing fires during cutscene
         foreach (InteractableObject obj in FindObjectsOfType<InteractableObject>())
         {
             if (obj.questionMark != null) obj.questionMark.SetActive(false);
@@ -54,6 +64,58 @@ public class Level6QuestManager : MonoBehaviour
             if (col != null) col.enabled = false;
         }
 
+        SaveAndShowScore();
+    }
+
+    void SaveAndShowScore()
+    {
+        float elapsed = Time.time - startTime;
+
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) { ProceedToEnd(); return; }
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            float firstRecord = elapsed;
+
+            if (task.IsCompletedSuccessfully)
+            {
+                if (task.Result.TryGetValue("level6_data", out object raw) && raw is Dictionary<string, object> d && d.ContainsKey("time"))
+                    firstRecord = System.Convert.ToSingle(d["time"]);
+                else
+                    userRef.UpdateAsync("level6_data", new Dictionary<string, object> { { "time", elapsed } });
+            }
+
+            if (firstRecordText != null)  firstRecordText.text  = $"{Mathf.RoundToInt(firstRecord)}s";
+            if (currentRecordText != null) currentRecordText.text = $"{Mathf.RoundToInt(elapsed)}s";
+
+            if (scorePanel != null)
+            {
+                scorePanel.SetActive(true);
+                if (tapAnywhereScoreBtn != null)
+                {
+                    tapAnywhereScoreBtn.gameObject.SetActive(true);
+                    tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                    tapAnywhereScoreBtn.onClick.AddListener(() =>
+                    {
+                        tapAnywhereScoreBtn.gameObject.SetActive(false);
+                        scorePanel.SetActive(false);
+                        ProceedToEnd();
+                    });
+                }
+            }
+            else
+            {
+                ProceedToEnd();
+            }
+        });
+    }
+
+    void ProceedToEnd()
+    {
         if (cutscene != null)
         {
             if (cutscenePanel != null) cutscenePanel.SetActive(true);

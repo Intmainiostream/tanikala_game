@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Playables;
+using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level3QuestManager : MonoBehaviour
 {
@@ -29,11 +33,25 @@ public class Level3QuestManager : MonoBehaviour
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text firstRecordText;
+    public TMP_Text currentRecordText;
+    public Button tapAnywhereScoreBtn;
+
+    private static float s_accumulated = 0f;
+    private static bool s_returning = false;
+
     private int catchCount = 0;
     private GameObject[] lessonPanels;
+    private float sessionStart;
 
     void Start()
     {
+        if (!s_returning) s_accumulated = 0f; // fresh entry — reset accumulator
+        s_returning = false;
+        sessionStart = Time.time;
+
         lessonPanels = new GameObject[] { lessonPanel1, lessonPanel2, lessonPanel3 };
 
         if (tapAnywhereBtn != null)
@@ -67,6 +85,8 @@ public class Level3QuestManager : MonoBehaviour
 
     void DismissLesson()
     {
+        s_accumulated += Time.time - sessionStart; // bank elapsed time before leaving
+        s_returning = true;
         SceneManager.LoadScene("PreLevel3Scene");
     }
 
@@ -85,6 +105,59 @@ public class Level3QuestManager : MonoBehaviour
         foreach (var guard in FindObjectsOfType<GuardPatrol>()) guard.paused = true;
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
 
+        SaveAndShowScore();
+    }
+
+    void SaveAndShowScore()
+    {
+        float elapsed = s_accumulated + (Time.time - sessionStart);
+        s_accumulated = 0f; // clean up after level complete
+
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) { ProceedToEnd(); return; }
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            float firstRecord = elapsed;
+
+            if (task.IsCompletedSuccessfully)
+            {
+                if (task.Result.TryGetValue("level3_data", out object raw) && raw is Dictionary<string, object> d && d.ContainsKey("time"))
+                    firstRecord = System.Convert.ToSingle(d["time"]);
+                else
+                    userRef.UpdateAsync("level3_data", new Dictionary<string, object> { { "time", elapsed } });
+            }
+
+            if (firstRecordText != null)  firstRecordText.text  = $"{Mathf.RoundToInt(firstRecord)}s";
+            if (currentRecordText != null) currentRecordText.text = $"{Mathf.RoundToInt(elapsed)}s";
+
+            if (scorePanel != null)
+            {
+                scorePanel.SetActive(true);
+                if (tapAnywhereScoreBtn != null)
+                {
+                    tapAnywhereScoreBtn.gameObject.SetActive(true);
+                    tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                    tapAnywhereScoreBtn.onClick.AddListener(() =>
+                    {
+                        tapAnywhereScoreBtn.gameObject.SetActive(false);
+                        scorePanel.SetActive(false);
+                        ProceedToEnd();
+                    });
+                }
+            }
+            else
+            {
+                ProceedToEnd();
+            }
+        });
+    }
+
+    void ProceedToEnd()
+    {
         if (cutscene != null)
         {
             if (cutscenePanel != null) cutscenePanel.SetActive(true);

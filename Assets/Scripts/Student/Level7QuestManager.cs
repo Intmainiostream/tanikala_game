@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
 
 public class Level7QuestManager : MonoBehaviour
 {
@@ -59,8 +62,15 @@ public class Level7QuestManager : MonoBehaviour
     [Header("Newspaper Sound")]
     public AudioClip newspaperSound;
 
+    [Header("Score Panel")]
+    public GameObject scorePanel;
+    public TMP_Text trustCountText;
+    public TMP_Text doubtCountText;
+    public Button tapAnywhereScoreBtn;
+
     private AudioSource audioSource;
     private int currentIndex = 0;
+    private int trustCount = 0, doubtCount = 0;
 
     private enum QuestState { Newspaper, InnerMonologue, Choices, Lesson }
     private QuestState state;
@@ -139,6 +149,7 @@ public class Level7QuestManager : MonoBehaviour
 
     void OnChoice(bool believed)
     {
+        if (believed) trustCount++; else doubtCount++;
         choicesPanel.SetActive(false);
         var entry = newspapers[currentIndex];
         PlaySound(believed ? entry.believeSound : entry.questionSound);
@@ -184,9 +195,38 @@ public class Level7QuestManager : MonoBehaviour
 
     void EndQuest()
     {
+        SaveLevelData();
         audioSource.Stop();
         questPanel.SetActive(false);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+        ShowScorePanel();
+    }
+
+    void ShowScorePanel()
+    {
+        if (trustCountText != null) trustCountText.text = trustCount.ToString();
+        if (doubtCountText != null) doubtCountText.text = doubtCount.ToString();
+
+        if (scorePanel != null)
+        {
+            scorePanel.SetActive(true);
+            if (tapAnywhereScoreBtn != null)
+            {
+                tapAnywhereScoreBtn.gameObject.SetActive(true);
+                tapAnywhereScoreBtn.onClick.RemoveAllListeners();
+                tapAnywhereScoreBtn.onClick.AddListener(ShowEndPanel);
+            }
+        }
+        else
+        {
+            ShowEndPanel();
+        }
+    }
+
+    void ShowEndPanel()
+    {
+        if (scorePanel != null) scorePanel.SetActive(false);
+        if (tapAnywhereScoreBtn != null) tapAnywhereScoreBtn.gameObject.SetActive(false);
 
         if (endPanel != null)
         {
@@ -202,5 +242,26 @@ public class Level7QuestManager : MonoBehaviour
         {
             if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
         }
+    }
+
+    void SaveLevelData()
+    {
+        string uid = GlobalUserData.UserId;
+        if (string.IsNullOrEmpty(uid)) return;
+
+        var db = FirebaseFirestore.DefaultInstance;
+        var userRef = db.Collection("users").Document(uid);
+
+        userRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        {
+            if (!task.IsCompletedSuccessfully) return;
+            if (task.Result.TryGetValue("level7_data", out object _)) return;
+
+            userRef.UpdateAsync("level7_data", new Dictionary<string, object>
+            {
+                { "trust", trustCount },
+                { "doubt", doubtCount }
+            });
+        });
     }
 }
