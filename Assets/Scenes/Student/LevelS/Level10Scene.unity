@@ -4855,6 +4855,8 @@ MonoBehaviour:
   - {fileID: 105302947}
   - {fileID: 270139073}
   levelCompleteManager: {fileID: 1138115188}
+  quizBGM: {fileID: 8300000, guid: 6c80646c898e2004188844a7321d38ee, type: 3}
+  sceneBGM: {fileID: 1470434859}
 --- !u!1 &1011407338
 GameObject:
   m_ObjectHideFlags: 0
@@ -6863,7 +6865,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 60afefe6bca09f44da161e7eb5081cba, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.021
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 1
   Mute: 0

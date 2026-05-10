@@ -89,9 +89,14 @@ public class Level10QuestManager : MonoBehaviour
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
 
+    [Header("Quiz BGM")]
+    public AudioClip quizBGM;
+    public AudioSource sceneBGM;
+
     // ─── Private ─────────────────────────────────────────────────────────────
 
     private AudioSource audioSource;
+    private AudioSource bgmSource;
     private int currentIndex = 0;
     private bool showingFalsePanel = false;
     private int score = 0;
@@ -110,6 +115,10 @@ public class Level10QuestManager : MonoBehaviour
     {
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
+
+        bgmSource = gameObject.AddComponent<AudioSource>();
+        bgmSource.playOnAwake = false;
+        bgmSource.loop = true;
 
         questPanel.SetActive(false);
 
@@ -152,6 +161,10 @@ public class Level10QuestManager : MonoBehaviour
         shuffledOrder = ShuffleIndices(questions.Length);
         questPanel.SetActive(true);
         foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+
+        if (sceneBGM != null) sceneBGM.mute = true;
+        if (quizBGM != null) { bgmSource.clip = quizBGM; bgmSource.Play(); }
+
         ShowQuestion();
     }
 
@@ -296,6 +309,8 @@ public class Level10QuestManager : MonoBehaviour
     void EndQuiz()
     {
         StopTimer();
+        bgmSource.Stop();
+        if (sceneBGM != null) sceneBGM.mute = false;
         questPanel.SetActive(false);
 
         SaveScoreToFirestore(firstScore =>
