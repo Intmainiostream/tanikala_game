@@ -1,10 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Playables;
 using TMPro;
 using Firebase.Firestore;
 using Firebase.Extensions;
-using System.Collections.Generic;
 
 public class Level6QuestManager : MonoBehaviour
 {
@@ -21,6 +22,9 @@ public class Level6QuestManager : MonoBehaviour
 
     [Header("HUDs to hide during cutscene")]
     public GameObject[] huds;
+
+    [Header("End Panel (newspaper, shows 5s after cutscene)")]
+    public GameObject endPanel;
 
     [Header("Level Complete")]
     public LevelCompleteManager levelCompleteManager;
@@ -132,6 +136,20 @@ public class Level6QuestManager : MonoBehaviour
     {
         cutscene.stopped -= OnCutsceneFinished;
         if (cutscenePanel != null) cutscenePanel.SetActive(false);
+        StartCoroutine(ShowEndPanel());
+    }
+
+    IEnumerator ShowEndPanel()
+    {
+        foreach (GameObject hud in huds) if (hud != null) hud.SetActive(false);
+
+        if (endPanel != null)
+        {
+            endPanel.SetActive(true);
+            yield return new WaitForSeconds(5f);
+            endPanel.SetActive(false);
+        }
+
         if (levelCompleteManager != null) levelCompleteManager.OnLevelComplete();
     }
 }
