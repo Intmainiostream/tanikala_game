@@ -10156,8 +10156,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b04e0107b107e724fa11d54cc248540c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftIdleSprite: {fileID: 1653722655, guid: 588d55439d4e74744a32d32f6b844d7f, type: 3}
-  rightIdleSprite: {fileID: 1372802794, guid: 2ccbbabd1e2262e42aba9603a9ae8be5, type: 3}
+  leftIdleSprite: {fileID: 1527582228, guid: e02045024b3292c47b73f46155343563, type: 3}
+  rightIdleSprite: {fileID: 453154622, guid: 9fc66b7939209d84ba94a58c6a4d380b, type: 3}
   lookLeftDuration: 3
   lookRightDuration: 4
   detectionRadius: 4
@@ -10180,7 +10180,7 @@ Animator:
   m_GameObject: {fileID: 1385155615}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: cb064adc9d5c6024ab23d40d478d6087, type: 2}
+  m_Controller: {fileID: 9100000, guid: 93acb576a8cff5249af6fd3726d8b77a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10232,7 +10232,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 8
-  m_Sprite: {fileID: 1653722655, guid: 588d55439d4e74744a32d32f6b844d7f, type: 3}
+  m_Sprite: {fileID: 1527582228, guid: e02045024b3292c47b73f46155343563, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -15225,8 +15225,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b04e0107b107e724fa11d54cc248540c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leftIdleSprite: {fileID: 1653722655, guid: 588d55439d4e74744a32d32f6b844d7f, type: 3}
-  rightIdleSprite: {fileID: 1372802794, guid: 2ccbbabd1e2262e42aba9603a9ae8be5, type: 3}
+  leftIdleSprite: {fileID: 1527582228, guid: e02045024b3292c47b73f46155343563, type: 3}
+  rightIdleSprite: {fileID: 453154622, guid: 9fc66b7939209d84ba94a58c6a4d380b, type: 3}
   lookLeftDuration: 3
   lookRightDuration: 4
   detectionRadius: 4
@@ -15249,7 +15249,7 @@ Animator:
   m_GameObject: {fileID: 2067460355}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: cb064adc9d5c6024ab23d40d478d6087, type: 2}
+  m_Controller: {fileID: 9100000, guid: 93acb576a8cff5249af6fd3726d8b77a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -15301,7 +15301,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 8
-  m_Sprite: {fileID: 1653722655, guid: 588d55439d4e74744a32d32f6b844d7f, type: 3}
+  m_Sprite: {fileID: 1527582228, guid: e02045024b3292c47b73f46155343563, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
