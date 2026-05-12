@@ -7048,8 +7048,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1104, y: 0}
-  m_SizeDelta: {x: -20, y: -20}
+  m_AnchoredPosition: {x: -785.7764, y: 10}
+  m_SizeDelta: {x: -1658.483, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &345344911
 GameObject:
@@ -13274,7 +13274,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.00010408788, y: -0.000047683716}
-  m_SizeDelta: {x: 0, y: 94.6982}
+  m_SizeDelta: {x: 0, y: 94.698}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &583852273
 MonoBehaviour:
@@ -13289,7 +13289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_HorizontalFit: 0
-  m_VerticalFit: 0
+  m_VerticalFit: 2
 --- !u!114 &583852274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13311,7 +13311,7 @@ MonoBehaviour:
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -27216,8 +27216,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.376533, y: -201.96106}
-  m_SizeDelta: {x: 19.246933, y: 423.9221}
+  m_AnchoredPosition: {x: -0.000024795532, y: -7.098114}
+  m_SizeDelta: {x: -0.000047684, y: 34.1962}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1278687755
 MonoBehaviour:
@@ -41406,8 +41406,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 781, y: 118.08002}
-  m_SizeDelta: {x: 20, y: 429.52002}
+  m_AnchoredPosition: {x: 820.0918, y: 203.50287}
+  m_SizeDelta: {x: 1660.1, y: 514.9429}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1946837082
 MonoBehaviour:
@@ -43250,9 +43250,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 583852272}
-  m_Horizontal: 1
+  m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -46394,7 +46394,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5833255812290958543, guid: 897a1d50d5aac0e4780aafedf75222a8, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1580.6475
+      value: 1587.6675
       objectReference: {fileID: 0}
     - target: {fileID: 5833255812290958543, guid: 897a1d50d5aac0e4780aafedf75222a8, type: 3}
       propertyPath: m_SizeDelta.y
@@ -46430,7 +46430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5833255812290958543, guid: 897a1d50d5aac0e4780aafedf75222a8, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 790.3237
+      value: 793.83374
       objectReference: {fileID: 0}
     - target: {fileID: 5833255812290958543, guid: 897a1d50d5aac0e4780aafedf75222a8, type: 3}
       propertyPath: m_AnchoredPosition.y

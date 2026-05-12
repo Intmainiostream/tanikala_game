@@ -34,7 +34,7 @@ public class LessonContentManager : MonoBehaviour
 
     void LoadModules()
     {
-        db.Collection("modules").GetSnapshotAsync().ContinueWithOnMainThread(task =>
+        db.Collection("modules").OrderBy("level").GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
             if (task.IsFaulted) { Debug.LogError("Failed to load modules: " + task.Exception); return; }
 
