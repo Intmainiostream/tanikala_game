@@ -2187,8 +2187,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   muteBtn: {fileID: 1458190597}
-  logoutBtn: {fileID: 0}
-  exitBtn: {fileID: 0}
+  logoutBtn: {fileID: 541753877}
+  exitBtn: {fileID: 1605036054}
   soundOnIcon: {fileID: 2140415231}
   soundOffIcon: {fileID: 1563326144}
 --- !u!1 &724006360
